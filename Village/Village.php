@@ -6,7 +6,7 @@ require_once('HeroAdventure.php');
 
 class Village
 {
-    // Atributes
+    // Attributes
     public $center;
     public $fields;
     public $heroAdventure;

@@ -1,7 +1,7 @@
 <?php
 class Center
 {
-    // Atributes
+    // Attributes
     private $relativeUrl = 'dorf2.php';
     private $buildingsType = array(
     	"Escondite" =>  'category=1',

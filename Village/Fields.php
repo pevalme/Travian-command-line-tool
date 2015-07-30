@@ -1,7 +1,7 @@
 <?php
 class Fields
 {
-    // Atributes
+    // Attributes
     private $relativeUrl = 'dorf1.php';
 
     // This variable will be initialize on running time

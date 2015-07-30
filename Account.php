@@ -5,7 +5,7 @@ require_once('Village/Village.php');
 
 class Account
 {
-    // Atributes
+    // Attributes
     private $url = 'http://ts5.travian.net/';
     // For now this works. In a future this array should also be completed automatically by asking the user for the name and password
     private $loginData = array(
@@ -49,7 +49,6 @@ class Account
         // TODO.
         // Look for the list of villages and their url on the $result
         // Once we have it, call several times to new Village() by grouping the results in an array
-
 
         print "Account initialized";
    	}
