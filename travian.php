@@ -104,25 +104,25 @@
 	curl_setopt($ch,CURLOPT_URL, 'http://ts5.travian.net/' . $adventureList[array_keys($adventureList)[$position]]['href']);
     curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
 
-//    $fields_string = '';
-//    for ($x = 0; $x <= 15; $x++) {
-//    	$firstElement = true;
-//		foreach($adventureList[array_keys($adventureList)[$x]] as $key=>$value) {
-//			if($firstElement){
-//				$firstElement = False;
-//			}else{
-//				$fields_string .= $key.'='.$value.'&';
-//				echo $key . "  " . $value . " \n";
-//			}
-//		}
-//	}
-//	$fields_string = rtrim($fields_string, '&');
-//
-//	curl_setopt($ch,CURLOPT_POST, count($fields));
-//	curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+    $fields_string = '';
+    for ($x = 0; $x <= 15; $x++) {
+    	$firstElement = true;
+		foreach($adventureList[array_keys($adventureList)[$x]] as $key=>$value) {
+			if($firstElement){
+				$firstElement = False;
+			}else{
+				$fields_string .= $key.'='.urlencode($value).'&';
+				echo $key . "  " . $value . " \n";
+			}
+		}
+	}
+	$fields_string = rtrim($fields_string, '&');
+
+	curl_setopt($ch,CURLOPT_POST, count($fields));
+	curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
 
     $result = curl_exec($ch);    
-    print $result;
+    //print $result;
 	//close connection
 	curl_close($ch);
 
