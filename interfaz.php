@@ -1,11 +1,13 @@
 <?php
 
+	require_once('Village/Center.php');
+
 	echo "ALBERTO SCRIPT\n";
 	//set POST variables
 	$urlVistaExterior = 'http://ts5.travian.net/dorf1.php';
 	$fields = array(
-                    'name' => urlencode('Filtor'),
-                    'password' => urlencode('47230660Ee'),
+                    'name' => urlencode('Digimon'),
+                    'password' => urlencode('noirerve'),
                     'lowRes' => urlencode('1'),
                     'w' => urlencode(''),
                     'login' => urlencode('1437574738')
@@ -39,7 +41,15 @@
 	$docVistaExterior->loadHTML($vistaExteriorHTML);
 	//echo $doc->saveXML();
 
+	echo "ALBERTO PRUEBA 1\n";
+
+	$centroAldea = new Center($ch);
+    $centroAldea->upgrade("Escondite");
 	
+	
+
+	/*
+
 	//$addlevel = explode("'", $doc->getElementById('stockBarResource1')->getElementsByTagName('middle')->item(4)->getElementsByTagName('button')->item(0)->getAttribute('onclick'))[1];
 	$madera =  $docVistaExterior->getElementById('l1')->nodeValue;
 	$barro =  $docVistaExterior->getElementById('l2')->nodeValue;
@@ -86,9 +96,9 @@
 
 		print "Posición: ".$numCampo. " -> ".$docVistaCentro->getElementById('content')->childNodes->item(1)->nodeValue."\n";
 	}
-	*/
 	
- 	
+	
+ 	*/
 
 	print "\n END \n";
 
