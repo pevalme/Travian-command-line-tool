@@ -55,6 +55,41 @@ class Fields
         libxml_use_internal_errors(true);
         $docVistaRecurso->loadHTML($vistaRecursoHTML);
 
+        //Comprbamos si se puede construir
+        //¿Hay suficientes recursos?
+        $madera =  (int)$docVistaRecurso->getElementById('l1')->nodeValue;
+        $barro =  (int)$docVistaRecurso->getElementById('l2')->nodeValue;
+        $hierro = (int)$docVistaRecurso->getElementById('l3')->nodeValue;
+        $cereal =  (int)$docVistaRecurso->getElementById('l4')->nodeValue;
+        $saldoCereal = (int)$docVistaRecurso->getElementById('stockBarFreeCrop')->nodeValue;
+
+        print "TENEMOS -> Madera: ".$madera."  Barro: ".$barro."   Hierro: ".$hierro."   Cereal: ".$cereal."   Saldo de cereal: ".$saldoCereal."\n";
+
+        $maderaCoste =  (int)$docVistaRecurso->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(0)->nodeValue;
+        $barroCoste =  (int)$docVistaRecurso->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(1)->nodeValue;
+        $hierroCoste = (int)$docVistaRecurso->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(2)->nodeValue;
+        $cerealCoste =  (int)$docVistaRecurso->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(3)->nodeValue;
+        $saldoCerealCoste = (int)$docVistaRecurso->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(4)->nodeValue;
+
+        print "CUESTA -> Madera: ".$maderaCoste."  Barro: ".$barroCoste."   Hierro: ".$hierroCoste."   Cereal: ".$cerealCoste."   Saldo de cereal: ".$saldoCerealCoste."\n";
+
+        if(!(($madera-$maderaCoste>=0)&&($barro-$barroCoste>=0)&&($hierro-$hierroCoste>=0)&&($cereal-$cerealCoste>=0)&&($saldoCereal-$saldoCerealCoste>=0))){
+            print "No hay suficientes recursos\n";
+            return -1;
+        }else{
+            print "SI Hay suficientes recursos\n";
+        }
+
+        //¿Hay constructores disponibles?
+        $constructores =  explode("'",$docVistaRecurso->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('class')."\n");
+        
+        if(strncmp ($constructores[0] , "none",4)==0){
+            print "No hay constructores disponibles\n";
+            return -1;
+        }else{
+            print "SI Hay constructores\n";
+        }
+        
         //Buscamos el botón
         //Primero buscamos el div del edificio que queremos consturir, ayudándonos del contract_building
         $aux = explode("'",$docVistaRecurso->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('onclick')."\n");
@@ -62,6 +97,8 @@ class Fields
         curl_setopt($this->ch,CURLOPT_URL, $build);
         curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
         curl_exec($this->ch);
+        
+        
         
     }
 

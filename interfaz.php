@@ -45,7 +45,7 @@
 	echo "ALBERTO PRUEBA 1\n";
 
 	$centroAldea = new Fields($ch);
-    $centroAldea->upgrade("Leñador3");
+    $centroAldea->upgrade("Barrera3");
 	
 	
 
