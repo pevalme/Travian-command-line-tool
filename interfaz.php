@@ -1,6 +1,7 @@
 <?php
 
 	require_once('Village/Center.php');
+	require_once('Village/Fields.php');
 
 	echo "ALBERTO SCRIPT\n";
 	//set POST variables
@@ -43,8 +44,8 @@
 
 	echo "ALBERTO PRUEBA 1\n";
 
-	$centroAldea = new Center($ch);
-    $centroAldea->upgrade("Escondite");
+	$centroAldea = new Fields($ch);
+    $centroAldea->upgrade("Leñador3");
 	
 	
 
