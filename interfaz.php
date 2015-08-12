@@ -35,6 +35,8 @@
 
 	//execute post
 	$vistaExteriorHTML = curl_exec($ch);
+
+	print $vistaExteriorHTML;
 /////////////////////////////////////////////////////////////////
 
 	$docVistaExterior = new DOMDocument();
@@ -44,8 +46,9 @@
 
 	echo "ALBERTO PRUEBA 1\n";
 
+	print "AQUI: ".$ch." AQUI\n";
 	$centroAldea = new Fields($ch);
-    $centroAldea->upgrade("Barrera3");
+    $centroAldea->upgrade("Leñador3");
 	
 	
 
