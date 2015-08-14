@@ -2,7 +2,12 @@
 
 	require_once('Account.php');
 
+	echo "INICIO\n";
 
+	$cuenta = new Account();
+
+	
+	//______ PROBANDO LOS METODOS DE SUBIR Y CONSTRUIR EDIFICIOS _____________
 	/*
 		LEER:
 
@@ -20,20 +25,35 @@
 		-Si intentamos subir de nivel un edificio cuando no hay recursos o no quedan constructores, simplemente devuelve -1.
 	*/
 
-	echo "INICIO\n";
-
+	/*
 	$edificio = "Barrera3";
 	$numAldea = 0;
 
-	$cuenta = new Account();
-
 	//print "La salida de contruir ".$edificio." en aldea ".$numAldea." es: ".$cuenta->buildCenter($edificio, $numAldea). "\n";
 	//print "La salida de subir ".$edificio." en aldea ".$numAldea." es: ".$cuenta->upgradeCenter($edificio, $numAldea). "\n";
-	print "La salida de subir ".$edificio." en aldea ".$numAldea." es: ".$cuenta->upgradeField($edificio, $numAldea). "\n";
+	//print "La salida de subir ".$edificio." en aldea ".$numAldea." es: ".$cuenta->upgradeField($edificio, $numAldea). "\n";
+	//__________________________________________________________________________
+	*/
 
-    echo "FIN\n";
-	
+
+
+
+	/*
+	//_______ PROBANDO EL METODO DE AUTOMATIZAR LA SUBIDA DE EDFICIAS, VERSION SENCILLA __________________
+
+	if ($cuenta->ia()==0){
+		print "FIN DEL AUTOMATIZADOR \n";
+	}
+	//____________________________________________________________________________________________________
+	*/
+
+	//print $cuenta->leerNota();
+	$cuenta->iniciarSesion();
+
+	$cuenta->ia();
 
 	$cuenta->closeConnection();
+    echo "FIN\n";
+
 
 ?>
