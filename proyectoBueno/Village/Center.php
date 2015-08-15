@@ -10,7 +10,11 @@ class Center
     private $buildingsType = array(
         "Edificio principal" => 'category=1;contract=11',
         "Plaza de reuniones" => 'category=2;contract=11',
-    	"Escondite" =>  'category=1;contract=11', 
+    	"Escondite" =>  'category=1;contract=23',
+        "Escondite2" => 'category=1;contract=23',
+        "Escondite3" => 'category=1;contract=23',
+        "Escondite4" => 'category=1;contract=23',
+        "Escondite5" => 'category=1;contract=23',
     	"Almacén" =>  'category=1;contract=11',
     	"Granero" =>  'category=1;contract=11',
     	"Embajada" => 'category=1;contract=18',

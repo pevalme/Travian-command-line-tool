@@ -9,25 +9,41 @@ class Account
     // Constructor: Inicializa aldea y conexión.
     function __construct() {
 
-        $this->indices = null;
+        //open connection
+        $this->ch = curl_init();
+   	}
+
+    // Methods
+
+    public function inicializarAldeas(){
+
+        //Guardamos los indices en una variable
+        $indices = $this->obtenerIndices();
+
+        //Inicializamos los automatizadores creados actualmente
 
         //Orden de construccion, basado en:
         // http://www.browsergamesforum.com.ar/guia-para-una-rapida-construccion-de-tus-aldeas-en-travian-t1103.html
-        $this->automatizadorFuera1 = array(
+        $automatizadorFields1 = array(
             "Granja1",
             "Granja4",
             "Granja5",
             "Granja6",
             "Barrera1",
-            "Barrera2"
+            "Barrera2",
+            "Barrera3"
             );
 
-        $this->automatizadorCentro1 = array(
+        $automatizadorCentro1 = array(
             "subir-Escondite",
-            "subir-Escondite"
+            "construir-Escondite2",
+            "subir-Escondite2",
+            "subir-Escondite2",
+            "subir-Escondite2"
             );
 
-        //Inicializamos las aldeas que tenemos actualmente.
+
+        //Inicializamos los campos de posicion de las aldeas que tenemos actualmente.
         //______ALDEA 0______
         $buildingsPositionFields[0] = array(
         "Leñador1" => 'id=1',
@@ -59,7 +75,7 @@ class Account
         "Embajada" => 'id=23',
         "Mercado" => 'id=24',
         "Residencia" => 'id=25',
-        "Tesoro" => 'id=28',
+        "Escondite2" => 'id=28',
         "Ayuntamiento" => 'id=30',
         "Oficina de Comercio" => 'id=31',
         "Cuartel" => 'id=33',
@@ -75,14 +91,9 @@ class Account
         "Muralla" => 'id=40' 
         );
 
-        $this->villages[0] = new Village($buildingsPositionCenter[0], $buildingsPositionFields[0]);
+        $this->villages[0] = new Village($buildingsPositionFields[0], $buildingsPositionCenter[0], $automatizadorFields1, $automatizadorCentro1, 'Aldea[0]', [1,-95], $indices[0], '?newdid=73786&');
 
-       
-        //open connection
-        $this->ch = curl_init();
-   	}
-
-    // Methods
+    }
 
     public function iniciarSesion(){
 
@@ -121,11 +132,6 @@ class Account
         
     }
 
-    public function iniciarIndices(){
-        //Inicializamos indices
-        $this->indices = $this->obtenerIndices();
-    }
-
     public function buildCenter($buildingName, $numAldea){
         return $this->villages[$numAldea]->buildCenter($buildingName, $this->ch);
     }
@@ -134,8 +140,8 @@ class Account
         return $this->villages[$numAldea]->upgradeCenter($buildingName, $this->ch);;
     }
 
-    public function upgradeField($buildingName, $numAldea){
-        return $this->villages[$numAldea]->upgradeField($buildingName, $this->ch); ;
+    public function upgradeFields($buildingName, $numAldea){
+        return $this->villages[$numAldea]->upgradeFields($buildingName, $this->ch); ;
     }
 
     public function closeConnection(){
@@ -144,18 +150,18 @@ class Account
 
     public function ia(){
 
-        $this->iniciarIndices();
+        $this->inicializarAldeas();
 
         while(1){
-            for($numAldea = 0; $numAldea < count($this->indices); $numAldea++){
+            for($numAldea = 0; $numAldea < count($this->villages); $numAldea++){
                 //Miramos si hay ordenes de constrruccion definidas:
-                if ($this->indices[$numAldea][0] < count($this->automatizadorFuera1)){
+                if ($this->getIndiceFieldsAldea($numAldea) < count($this->getAutFieldsAldea($numAldea))){
                     //Miramos si se puede subir de nivel algún recurso y lo subimos si se puede.
-                    if ($this->upgradeField($this->automatizadorFuera1[$this->indices[$numAldea][0]], $numAldea) == 0){
-                        print "Hemos subido de nivel el ".$this->automatizadorFuera1[$this->indices[$numAldea][0]]." a las ";
+                    if ($this->upgradeFields($this->getAutFieldsAldea($numAldea)[$this->getIndiceFieldsAldea($numAldea)], $numAldea) == 0){
+                        print "Hemos subido de nivel el ".$this->getAutFieldsAldea($numAldea)[$this->getIndiceFieldsAldea($numAldea)]." a las ";
                         print date("Y-m-d H:i:s"); 
                         print " en la aldea ".$numAldea.".\n";
-                        $this->indices[$numAldea][0]++;
+                        $this->increaseIndiceFieldsAldea($numAldea);
                     }
                 }else{
                     print "No hay ordenes de construcción definidas en el exterior de la aldea ".$numAldea.".\n";
@@ -163,10 +169,10 @@ class Account
 
 
                 //Miramos si hay ordenes de constrruccion definidas:
-                if ($this->indices[$numAldea][0] < count($this->automatizadorFuera1)){
+                if ($this->getIndiceCenterAldea($numAldea) < count($this->getAutCenterAldea($numAldea))){
                     //Miramos si en el centro toca consturir o subir de nivel
-                    $accion = $this->obtenerAccion($this->automatizadorCentro1[$this->indices[$numAldea][1]]);
-                    $edificio = $this->obtenerEdificio($this->automatizadorCentro1[$this->indices[$numAldea][1]]);
+                    $accion = $this->obtenerAccion($this->getAutCenterAldea($numAldea)[$this->getIndiceCenterAldea($numAldea)]);
+                    $edificio = $this->obtenerEdificio( $this->getAutCenterAldea($numAldea)[$this->getIndiceCenterAldea($numAldea)]);
 
                     //Miramos si se puede realizar esa accion y si se puede la realizamos.
                     if($accion == 0){
@@ -174,7 +180,7 @@ class Account
                             print "Hemos construido el ".$edificio." a las ";
                             print date("Y-m-d H:i:s"); 
                             print " en la aldea ".$numAldea.".\n";
-                            $this->indices[$numAldea][1]++;
+                            $this->increaseIndiceCenterAldea($numAldea);
                         }
 
                     }else{
@@ -182,7 +188,7 @@ class Account
                             print "Hemos subido de nivel el ".$edificio." a las ";
                             print date("Y-m-d H:i:s"); 
                             print " en la aldea ".$numAldea.".\n";
-                            $this->indices[$numAldea][1]++;
+                            $this->increaseIndiceCenterAldea($numAldea);
                         }
                     }
                 }else{
@@ -207,7 +213,7 @@ class Account
     private function obtenerAccion($cadena){
         $orden = explode("-",$cadena);
 
-        if(strcmp($cadena[0] , "construir")==0){
+        if(strcmp($orden[0] , "construir")==0){
             return 0; //construir
         }
         return 1; //subir
@@ -297,16 +303,40 @@ class Account
         $cadena = "";
         $numAldea = 0;
 
-        foreach ($this->indices as $indice){
+        for($numAldea = 0; $numAldea < count($this->villages); $numAldea++){
             if($numAldea > 0){
                 $cadena = $cadena."_";
             }
-            $cadena = $cadena.$numAldea.":".$indice[0].":".$indice[1];
+            $cadena = $cadena.$numAldea.":".$this->getIndiceFieldsAldea($numAldea).":".$this->getIndiceCenterAldea($numAldea);
             $numAldea++;
         }
 
         $this->escribirNota($cadena);
-
     }
+
+    public function getIndiceFieldsAldea($numAldea){
+        return $this->villages[$numAldea]->getIndiceFields();
+    }
+
+    public function getIndiceCenterAldea($numAldea){
+        return $this->villages[$numAldea]->getIndiceCenter();
+    }
+
+    public function getAutFieldsAldea($numAldea){
+        return $this->villages[$numAldea]->getAutFields();
+    }
+
+    public function getAutCenterAldea($numAldea){
+        return $this->villages[$numAldea]->getAutCenter();
+    }
+
+    public function increaseIndiceFieldsAldea($numAldea){
+        $this->villages[$numAldea]->increaseIndiceFields();
+    }
+
+    public function increaseIndiceCenterAldea($numAldea){
+        $this->villages[$numAldea]->increaseIndiceCenter();
+    }
+
 }
 ?>
