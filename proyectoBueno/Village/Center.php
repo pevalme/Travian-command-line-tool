@@ -2,9 +2,6 @@
 class Center
 {
 
-    //De momento consideramos que en $buildinsType todos los edificios tienen su id de construcción. Lo óptimo es qe como vamos a tener un array
-    // de buildings por cada aldea, que sea un array de 21 elementos, con los edificios que se desean construir.
-
     // Attributes
     private $relativeUrl = 'dorf2.php';
     private $buildingsType = array(
