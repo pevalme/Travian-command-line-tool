@@ -48,7 +48,6 @@
 	*/
 
 	//print $cuenta->leerNota();
-	$cuenta->iniciarSesion();
 
 	$cuenta->ia();
 
