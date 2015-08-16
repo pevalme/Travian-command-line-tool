@@ -1,7 +1,7 @@
 <?php
 
 require_once('Village/Village.php');
-
+require_once('HeroAdventure.php');
 
 class Account
 {
@@ -9,8 +9,10 @@ class Account
     private $ch;
     private $villages;
     private $hero;
+    private $url;
     // Constructor: Inicializa aldea y conexión.
-    function __construct() {
+    function __construct($url) {
+        $this->url = $url;
 
         //open connection
         $this->ch = curl_init();
@@ -31,6 +33,9 @@ class Account
         $this->iniciarSesion();
         $this->inicializarAldeas();
 
+        //$this->villages[0]->attack($this->ch, $this->url, '',"0","-94","1","0","0","0","0","0","0","0","0","0","0","2");
+        //$this->sendToAdventure(0);
+        //exit;
         while(1){
 
             print "\n\n___________________________________________________________________\n";
@@ -371,9 +376,9 @@ class Account
 
     public function sendToAdventure($n){
         if (is_null($this->hero)){
-            $this->hero = new HeroAdventure();
+            $this->hero = new HeroAdventure($this->ch, $this->url);
         }
-        $this->hero->goTo($n);
+        $this->hero->goToAdventure($this->ch, $this->url, $n);
     }
 }
 ?>

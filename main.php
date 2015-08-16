@@ -4,7 +4,7 @@
 
 	echo "INICIO\n";
 
-	$cuenta = new Account();
+	$cuenta = new Account('http://ts5.travian.net/');
 
 
 	//______ PROBANDO LOS METODOS DE SUBIR Y CONSTRUIR EDIFICIOS _____________

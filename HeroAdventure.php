@@ -12,7 +12,7 @@ class HeroAdventure
     function __construct($ch, $url) {
         print "Initializing hero's adventure data\n";
 
-        curl_setopt($ch,CURLOPT_URL, $url . $relativeUrl);
+        curl_setopt($ch,CURLOPT_URL, $url . $this->relativeUrl);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
 
@@ -42,8 +42,8 @@ class HeroAdventure
    	}
 
     // Methods
-    public function goTo($adventureNumber) {
-        curl_setopt($ch,CURLOPT_URL, 'http://ts5.travian.net/' . $this->adventureList[array_keys($this->adventureList)[$adventureNumber]]['href']);
+    public function goToAdventure($ch, $url, $adventureNumber) {
+        curl_setopt($ch,CURLOPT_URL, $url . $this->adventureList[array_keys($this->adventureList)[$adventureNumber]]['href']);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
 
         // Acces to the $adventureNumber adventure
@@ -69,7 +69,7 @@ class HeroAdventure
         }
         $fields_string = rtrim($fields_string, '&');
 
-        curl_setopt($ch,CURLOPT_URL, 'http://ts5.travian.net/' . $action);
+        curl_setopt($ch,CURLOPT_URL, $url . $action);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch,CURLOPT_POST, count($fields));
         curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
