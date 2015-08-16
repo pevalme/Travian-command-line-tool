@@ -49,9 +49,13 @@
 
 	//print $cuenta->leerNota();
 
-	$cuenta->ia();
+	//$cuenta->ia();
 
-	$cuenta->closeConnection();
+	//$cuenta->closeConnection();
+	$cuenta->iniciarSesion();
+    $cuenta->inicializarAldeas();
+	$cuenta->attack('Aldea[0]', '',"0","-94","0","0","0","0","0","0","0","0","0","0","1","2");
+    //$this->sendToAdventure(0);
     echo "FIN\n";
 
 
