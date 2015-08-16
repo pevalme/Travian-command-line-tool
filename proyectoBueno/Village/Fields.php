@@ -29,6 +29,13 @@ class Fields
         $docVistaRecurso->loadHTML($vistaRecursoHTML);
 
         //______Comprobamos si se puede subir nivel_____________
+        //Miramos que el edificio no este ampliado al maximo:
+        $maximo = explode(" ",$docVistaRecurso->getElementById('contract')->childNodes->item(0)->nodeValue."\n");
+        if(strncmp ($maximo[count($maximo)-1] , "completamente", 13)==0){
+            print "Se ha querido subir ".$buildingName." a grado ".$level." pero el edificio ya está ampliado completamente. Se ignora acción.\n";
+            return 0;
+        }
+
         //Comprobamos si hay suficientes recursos.
         //Obtenemos los recursos actuales:
         $recursos[0] =  (int)$docVistaRecurso->getElementById('l1')->nodeValue;
@@ -56,7 +63,7 @@ class Fields
         $constructores =  explode("'",$docVistaRecurso->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('class')."\n");
         
         if(strncmp ($constructores[0] , "none",4)==0){
-            print "No hay constructores disponibles en el interior de la aldea\n";
+            print "No hay constructores disponibles en el exterior de la aldea\n";
             return -1;
         }
 
