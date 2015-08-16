@@ -2,37 +2,64 @@
 
 require_once('Center.php');
 require_once('Fields.php');
-require_once('HeroAdventure.php');
 
 class Village
 {
     // Attributes
-    public $center;
-    public $fields;
-    public $heroAdventure;
+ 
 
     // Constructor
-    function __construct($url, $ch) {
-        print "Initializing village\n";
-
-        $this->center = new Center($this->$ch, $url);
-        $this->fields = new Fields($this->$ch, $url);
-        $this->heroAdventure = new HeroAdventure($this->$ch, $url);
-
-        print "Villabe initialized";
+    function __construct($buildingPositionFields, $buildingPositionCenter, $autFields, $autCenter, $name, $coords, $indices, $url) {
+        $this->fields = new Fields($buildingPositionFields);
+        $this->center = new Center($buildingPositionCenter);
+        $this->autFields = $autFields;
+        $this->autCenter = $autCenter;
+        $this->name = $name;
+        $this->coordenadas = $coords;
+        $this->indices = $indices;
+        $this->url = $url;
    	}
 
     // Methods
-    public function upgrade($buildingName) {
-        echo "upgrade method";
+    public function buildCenter($buildingName, $ch){
+        return $this->center->build($buildingName, $ch);
     }
 
-    public function build($buildingName) {
-        echo "build method";
+    public function upgradeCenter($buildingName, $level, $ch){
+        return $this->center->upgrade($buildingName, $level, $ch);
     }
 
-    public function listData() {
-        echo "listData method";
+    public function upgradeFields($buildingName, $level, $ch){
+        return $this->fields->upgrade($buildingName, $level, $ch);
     }
+
+    public function getIndiceFields(){
+        return $this->indices[0];
+    }
+
+    public function getIndiceCenter(){
+        return $this->indices[1];
+    }
+
+    public function getAutFields(){
+        return $this->autFields;
+    }
+
+    public function getAutCenter(){
+        return $this->autCenter;
+    }
+
+    public function increaseIndiceFields(){
+        $this->indices[0]++;
+    }
+
+    public function increaseIndiceCenter(){
+        $this->indices[1]++;
+    }
+
+    public function getName(){
+        return $this->name;
+    }
+
 }
 ?>

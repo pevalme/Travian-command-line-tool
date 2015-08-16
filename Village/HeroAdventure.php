@@ -35,28 +35,54 @@ class HeroAdventure
                     $fields[$input->getAttribute('name')]=$input->getAttribute('value');
                 }
 
-                $this->adventureList[$adv->getElementsByTagName('td')->item(2)->plaintext . $adv->getElementsByTagName('td')->item(4)->plaintext] = $fields;
+                $this->adventureList[trim($adv->getElementsByTagName('td')->item(2)->childNodes->item(0)->nodeValue) . ' <=> ' . $adv->getElementsByTagName('td')->item(4)->childNodes->item(1)->nodeValue] = $fields;
             }
         }
    	}
 
     // Methods
     public function goTo($adventureNumber) {
-        echo "goTo method";
+        curl_setopt($ch,CURLOPT_URL, 'http://ts5.travian.net/' . $this->adventureList[array_keys($this->adventureList)[$adventureNumber]]['href']);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+
+        // Acces to the $adventureNumber adventure
+        $result = curl_exec($ch);
+
+        //print $result;
+        $doc = new DomDocument();
+        $doc->loadHTML($result);
+
+        // Get the form that we have to submit to send the hero to the adventure
+        $action = $doc->getElementsByTagName('form')[0]->getAttribute('action');
+
+        // Get the inputs of the form
+        $inputs = $doc->getElementsByTagName('input');
+        $fields = array();
+
+        foreach($inputs as $i => $data){
+            $fields[$data->getAttribute('name')]=$data->getAttribute('value');
+        }
+        $fields_string = '';
+        foreach($fields as $key=>$value) {
+            $fields_string .= $key.'='.urlencode($value).'&';
+        }
+        $fields_string = rtrim($fields_string, '&');
+
+        curl_setopt($ch,CURLOPT_URL, 'http://ts5.travian.net/' . $action);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch,CURLOPT_POST, count($fields));
+        curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+
+        curl_exec($ch);
     }
 
     public function listData() {
         echo "listData method\n";
 
         $counter = 0;
-        foreach($adventureList as $time => $adv){
-            echo "Aventura ". $counter++ . " encontrada a: " . $time;
-            //foreach($adv as $index => $data){
-            //    echo "[".$index."]=".$data;
-            //} 
-            print "\n";
-        }  
-
+        foreach($this->adventureList as $time => $adv){
+            echo "Aventura ". $counter++ . " encontrada a: " . $time . "\n";
+        }
     }
 }
 ?>

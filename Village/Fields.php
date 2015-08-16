@@ -3,57 +3,40 @@ class Fields
 {
     // Attributes
     private $relativeUrl = 'dorf1.php';
-    private $buildingsType = array(
-        "Leñador1" => 'id=1',
-        "Leñador2" => 'id=3',
-        "Leñador3" =>  'id=14', 
-        "Leñador4" =>  'id=17',
-        "Barrera1" =>  'id=5',
-        "Barrera2" => 'id=6',
-        "Barrera3" => 'id=16',
-        "Barrera4" => 'id=18',
-        "Hierro1" => 'id=4',
-        "Hierro2" => 'id=7',
-        "Hierro3" => 'id=10',
-        "Hierro4" => 'id=11',
-        "Granja1" => 'id=8',
-        "Granja2" => 'id=9',
-        "Granja3" => 'id=13',
-        "Granja4" => 'id=12',
-        "Granja5" => 'id=2',
-        "Granja6" => 'id=15',
-    );
 
-    // This variable will be initialize on running time
-	public $currentBuildings = NULL;
 	// This variable will be an array [building, slot]
 
     // Constructor
-    function __construct($ch) {
-       print "Initializing village's center\n";
-       $this->ch=$ch;
+    function __construct($buildingsPosition) {
+        $this->buildingsPosition = $buildingsPosition;
     }
 
     // Methods
-    public function upgrade($buildingName) {
-        print "AQUI: ".$this->ch." AQUI\n";
+    public function upgrade($buildingName, $level, $ch) {
+        $noAvanzarIndice=0;
 
         //Obtenemos de la lista el id en el que está construido.
         $id = $this->idBuilding($buildingName);
         
         //Cargamos el html que aparece al pinchar sobre el edificio.
         $urlVistaRecurso = 'http://ts5.travian.net/build.php?id='.$id;
-        curl_setopt($this->ch,CURLOPT_URL, $urlVistaRecurso);
-        curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
-        $vistaRecursoHTML = curl_exec($this->ch);
+        curl_setopt($ch,CURLOPT_URL, $urlVistaRecurso);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        $vistaRecursoHTML = curl_exec($ch);
 
         $docVistaRecurso = new DOMDocument();
         libxml_use_internal_errors(true);
         $docVistaRecurso->loadHTML($vistaRecursoHTML);
 
         //______Comprobamos si se puede subir nivel_____________
-        //Iniciamos el control mirando si hay suficientes recursos.
+        //Miramos que el edificio no este ampliado al maximo:
+        $maximo = explode(" ",$docVistaRecurso->getElementById('contract')->childNodes->item(0)->nodeValue."\n");
+        if(strncmp ($maximo[count($maximo)-1] , "completamente", 13)==0){
+            print "Se ha querido subir ".$buildingName." a grado ".$level." pero el edificio ya está ampliado completamente. Se ignora acción.\n";
+            return 0;
+        }
 
+        //Comprobamos si hay suficientes recursos.
         //Obtenemos los recursos actuales:
         $recursos[0] =  (int)$docVistaRecurso->getElementById('l1')->nodeValue;
         $recursos[1] =  (int)$docVistaRecurso->getElementById('l2')->nodeValue;
@@ -70,39 +53,53 @@ class Fields
 
         //Comprobamos si son suficientes y en caso de no serlo salimos de la función.
         if(!(($recursos[0]-$recursosCoste[0]>=0)&&($recursos[1]-$recursosCoste[1]>=0)&&($recursos[2]-$recursosCoste[2]>=0)&&($recursos[3]-$recursosCoste[3]>=0)&&($recursos[4]-$recursosCoste[4]>=0))){
-            print "No hay suficientes recursos\n";
+            print "No hay suficientes recursos para subir ".$buildingName." a grado ".$levelUp.".\n";
             return -1;
         }
 
         
-        //Terminamos el control mirando si hay constructores
+        //Comprobamos si hay constructores
         //NOTA: este control sirve para comprobar todo, pero para identificar el problema por el cual no se sube el edificio lo hemos separado en dos controles.
         $constructores =  explode("'",$docVistaRecurso->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('class')."\n");
         
         if(strncmp ($constructores[0] , "none",4)==0){
-            print "No hay constructores disponibles\n";
+            print "No hay constructores disponibles en el exterior de la aldea\n";
             return -1;
         }
+
+        //Comprobamos el nivel al que vamos a subir:
+        $buttonLevelUp =  $docVistaRecurso->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->nodeValue;
+        $levelUp = (int) explode(" ",$buttonLevelUp)[3];
+        if($level > $levelUp){
+            print "Se quiere subir ".$buildingName." a grado ".$level." cuando esta en grado ".($levelUp-1).". Se va a subir a grado ".$levelUp.".\n";
+            $noAvanzarIndice = 1;
+        }else if($level < $levelUp){
+            print "Se ha querido subir ".$buildingName." a grado ".$level." cuando esta en grado ".($levelUp-1).". Se ignora acción.\n";
+            return 0;
+        }
+
         //_________Comprobación de si se puede subir nivel terminada___________
         
 
         //Ahora ya sabemos que existe el botón de subir nivel, accedemos a él y lo pinchamos:
-        /*$aux = explode("'",$docVistaRecurso->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('onclick')."\n");
+        $aux = explode("'",$docVistaRecurso->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('onclick')."\n");
         $build = 'http://ts5.travian.net/'.$aux[1];
-        curl_setopt($this->ch,CURLOPT_URL, $build);
-        curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
-        curl_exec($this->ch);
-        */
+        curl_setopt($ch,CURLOPT_URL, $build);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        curl_exec($ch);
+
+        print "Se ha subido ".$buildingName." a grado ".$levelUp.".\n";
         
+        if($noAvanzarIndice == 1){
+            return -1;
+        }
         
+        return 0;
     }
 
-    public function listData() {
-        echo "listData method";
-    }
 
     private function idBuilding($buildingName){
-        $array = $this->buildingsType[$buildingName];
+        $array = $this->buildingsPosition[$buildingName];
         $array2 = explode('=',$array);
         return (int)$array2[1];
     }

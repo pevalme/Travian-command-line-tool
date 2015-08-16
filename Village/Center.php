@@ -2,202 +2,324 @@
 class Center
 {
 
-    //De momento consideramos que en $buildinsType todos los edificios tienen su id de construcción. Lo óptimo es qe como vamos a tener un array
-    // de buildings por cada aldea, que sea un array de 21 elementos, con los edificios que se desean construir.
-
     // Attributes
     private $relativeUrl = 'dorf2.php';
     private $buildingsType = array(
-        "Edificio principal" => 'category=1;id=26',
-        "Plaza de reuniones" => 'category=2;id=39',
-    	"Escondite" =>  'category=1;id=21', 
-    	"Almacén" =>  'category=1;id=20',
-    	"Granero" =>  'category=1;id=19;contract=11',
-    	"Embajada" => 'category=1;id=30;contract=18',
-    	"Mercado" => 'category=1;id=30',
-    	"Residencia" => 'category=1;id=30',
-    	"Palacio" => 'category=1;id=30',
-    	"Cantero" => 'category=1;id=30',
-    	"Tesoro" => 'category=1;id=30',
-    	"Cervecería" => 'category=1;id=30',
-    	"Ayuntamiento" => 'category=1;id=30',
-    	"Oficina de Comercio" => 'category=1;id=30',
-    	"Terraplén" => 'category=2;id=30',
-    	"Cuartel" => 'category=2;id=30',
-    	"Hogar del héroe" => 'category=2;id=30',
-    	"Academia" => 'category=2;id=30',
-    	"Herrería" => 'category=2;id=30',
-    	"Establo" => 'category=2;id=30',
-    	"Taller" => 'category=2;id=30',
-    	"Plaza de Torneos" => 'category=2;id=30',
-    	"Molino" => 'category=3;id=30',
-    	"Serrería" => 'category=3;id=30',
-    	"Ladrillar" => 'category=3;id=30',
-    	"Fundición" => 'category=3;id=30',
-    	"Panadería" => 'category=3;id=30',
-        "Muralla" => 'category=2;id=24;contract=31' //a la muralla hay que ponerle un id que este libre en el momento de contruir, o eso o hacer un funcion 
-                                                    //especial para construir muralla y plaza de reuniones.
+        "Edificio principal" => 'category=1;contract=11',
+        "Plaza de reuniones" => 'category=2;contract=11',
+    	"Escondite" =>  'category=1;contract=23',
+        "Escondite2" => 'category=1;contract=23',
+        "Escondite3" => 'category=1;contract=23',
+        "Escondite4" => 'category=1;contract=23',
+        "Escondite5" => 'category=1;contract=23',
+    	"Almacén" =>  'category=1;contract=11',
+    	"Granero" =>  'category=1;contract=11',
+    	"Embajada" => 'category=1;contract=18',
+    	"Mercado" => 'category=1;contract=17',
+    	"Residencia" => 'category=1;contract=25',
+    	"Palacio" => 'category=1;contract=26',
+    	"Cantero" => 'category=1;contract=34',
+    	"Tesoro" => 'category=1;contract=27',
+    	"Cervecería" => 'category=1;contract=11',
+    	"Ayuntamiento" => 'category=1;contract=24',
+    	"Oficina de Comercio" => 'category=1;contract=28',
+        "Abrevadero" => 'category=1;contract=41',
+    	"Cuartel" => 'category=2;contract=19',
+    	"Hogar del heroe" => 'category=2;contract=37',
+    	"Academia" => 'category=2;contract=22',
+    	"Herrería" => 'category=2;contract=13',
+    	"Establo" => 'category=2;contract=20',
+    	"Taller" => 'category=2;contract=21',
+    	"Plaza de Torneos" => 'category=2;contract=14',
+    	"Molino" => 'category=3;contract=8',
+    	"Serrería" => 'category=3;contract=5',
+    	"Ladrillar" => 'category=3;contract=6',
+    	"Fundición" => 'category=3;contract=7',
+    	"Panadería" => 'category=3;contract=9',
+        "Muralla" => 'category=2;contract=31'
 	);
 
-    // This variable will be initialize on running time
-	public $currentBuildings = NULL;
 	// This variable will be an array [building, slot]
 
     // Constructor
-    function __construct($ch) {
-       print "Initializing village's center\n";
-       $this->ch=$ch;
-   	}
+    function __construct($buildingsPosition) {
+        $this->buildingsPosition = $buildingsPosition;
+    }
 
     // Methods
-    public function upgrade($buildingName) {
-        echo "upgrade method\n";
-        print "Tratamos de subir el edificio ".$buildingName."\n";
+    public function upgrade($buildingName, $level, $ch) {
+        $noAvanzarIndice=0;
 
         //Obtenemos de la lista el id en el que está construido
         $id = $this->idBuilding($buildingName);
-        print "El id que tenemos es: ".$id."\n";
 
         //Cargamos el html correspondiente al menu en el que está el botón de construir edficio
         $urlVistaEdificio = 'http://ts5.travian.net/build.php?id='.$id;
-        curl_setopt($this->ch,CURLOPT_URL, $urlVistaEdificio);
-        curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
-        $vistaEdficioHTML = curl_exec($this->ch);
+        curl_setopt($ch,CURLOPT_URL, $urlVistaEdificio);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        $vistaEdficioHTML = curl_exec($ch);
 
-        $docVistaEdficio = new DOMDocument();
+        $docVistaEdificio = new DOMDocument();
         libxml_use_internal_errors(true);
-        $docVistaEdficio->loadHTML($vistaEdficioHTML);
+        $docVistaEdificio->loadHTML($vistaEdficioHTML);
 
-        //Comprbamos si se puede construir
-        //¿Hay suficientes recursos?
-        $madera =  (int)$docVistaEdficio->getElementById('l1')->nodeValue;
-        $barro =  (int)$docVistaEdficio->getElementById('l2')->nodeValue;
-        $hierro = (int)$docVistaEdficio->getElementById('l3')->nodeValue;
-        $cereal =  (int)$docVistaEdficio->getElementById('l4')->nodeValue;
-        $saldoCereal = (int)$docVistaEdficio->getElementById('stockBarFreeCrop')->nodeValue;
-
-        print "TENEMOS -> Madera: ".$madera."  Barro: ".$barro."   Hierro: ".$hierro."   Cereal: ".$cereal."   Saldo de cereal: ".$saldoCereal."\n";
-
-        $maderaCoste =  (int)$docVistaEdficio->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(0)->nodeValue;
-        $barroCoste =  (int)$docVistaEdficio->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(1)->nodeValue;
-        $hierroCoste = (int)$docVistaEdficio->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(2)->nodeValue;
-        $cerealCoste =  (int)$docVistaEdficio->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(3)->nodeValue;
-        $saldoCerealCoste = (int)$docVistaEdficio->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(4)->nodeValue;
-
-        print "CUESTA -> Madera: ".$maderaCoste."  Barro: ".$barroCoste."   Hierro: ".$hierroCoste."   Cereal: ".$cerealCoste."   Saldo de cereal: ".$saldoCerealCoste."\n";
-
-        if(!(($madera-$maderaCoste>=0)&&($barro-$barroCoste>=0)&&($hierro-$hierroCoste>=0)&&($cereal-$cerealCoste>=0)&&($saldoCereal-$saldoCerealCoste>=0))){
-            print "No hay suficientes recursos\n";
-            return -1;
-        }else{
-            print "SI Hay suficientes recursos\n";
+        //______Comprobamos si se puede subir nivel_____________
+        //Miramos que el edificio no este ampliado al maximo:
+        $maximo = explode(" ",$docVistaEdificio->getElementById('contract')->childNodes->item(0)->nodeValue."\n");
+        if(strncmp ($maximo[count($maximo)-1] , "completamente", 13)==0){
+            print "Se ha querido subir ".$buildingName." a grado ".$level." pero el edificio ya está ampliado completamente. Se ignora acción.\n";
+            return 0;
         }
 
-        //¿Hay constructores disponibles?
-        $constructores =  explode("'",$docVistaEdficio->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('class')."\n");
+        //Comprobamos que el edificio esta construido:
+        $estado =  explode(" ",$docVistaEdificio->getElementById('content')->childNodes->item(1)->nodeValue."\n");
+        if(strncmp ($estado[0] , "Construir", 9)==0){
+            print "Se ha querido subir ".$buildingName." a grado ".$level. " pero el edificio no está construido. Se intenta construir.\n";
+            $this->build($buildingName, $ch);
+            return -1;
+        }
+
+        //Comprobamos si hay suficientes recursos.
+        //Obtenemos los recursos actuales:
+        $recursos[0] =  (int)$docVistaEdificio->getElementById('l1')->nodeValue;
+        $recursos[1] =  (int)$docVistaEdificio->getElementById('l2')->nodeValue;
+        $recursos[2] = (int)$docVistaEdificio->getElementById('l3')->nodeValue;
+        $recursos[3] =  (int)$docVistaEdificio->getElementById('l4')->nodeValue;
+        $recursos[4] = (int)$docVistaEdificio->getElementById('stockBarFreeCrop')->nodeValue;
+
+        //Obtenemos los recursos que cuesta subir el edificio:
+        $recursosCoste[0] =  (int)$docVistaEdificio->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(0)->nodeValue;
+        $recursosCoste[1] =  (int)$docVistaEdificio->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(1)->nodeValue;
+        $recursosCoste[2] = (int)$docVistaEdificio->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(2)->nodeValue;
+        $recursosCoste[3] =  (int)$docVistaEdificio->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(3)->nodeValue;
+        $recursosCoste[4] = (int)$docVistaEdificio->getElementById('contract')->childNodes->item(1)->childNodes->item(0)->childNodes->item(4)->nodeValue;
+
+
+        //Comprobamos si son suficientes y en caso de no serlo salimos de la función.
+        if(!(($recursos[0]-$recursosCoste[0]>=0)&&($recursos[1]-$recursosCoste[1]>=0)&&($recursos[2]-$recursosCoste[2]>=0)&&($recursos[3]-$recursosCoste[3]>=0)&&($recursos[4]-$recursosCoste[4]>=0))){
+            print "No hay suficientes recursos para subir ".$buildingName." a grado ".$levelUp.".\n";
+            return -1;
+        }
+
+
+        //Comprobamos si hay constructores
+        //NOTA: este control sirve para comprobar todo, pero para identificar el problema por el cual no se sube el edificio lo hemos separado en dos controles.
+        $constructores =  explode("'",$docVistaEdificio->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('class')."\n");
         
         if(strncmp ($constructores[0] , "none",4)==0){
-            print "No hay constructores disponibles\n";
+            print "No hay constructores disponibles en el centro de la aldea\n";
             return -1;
-        }else{
-            print "SI Hay constructores\n";
         }
 
-        //Buscamos el botón de construir
-        $aux = explode("'",$docVistaEdficio->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('onclick')."\n");
-        $upgrade = 'http://ts5.travian.net/'.$aux[1];
-        curl_setopt($this->ch,CURLOPT_URL, $upgrade);
-        curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
-        curl_exec($this->ch);
+        //Comprobamos el nivel al que vamos a subir:
+        $buttonLevelUp =  $docVistaEdificio->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->nodeValue;
+        $levelUp = (int) explode(" ",$buttonLevelUp)[3];
+        if($level > $levelUp){
+            print "Se quiere subir ".$buildingName." a grado ".$level." cuando esta en grado ".($levelUp-1).". Se va a subir a grado ".$levelUp.".\n";
+            $noAvanzarIndice = 1;
+        }else if($level < $levelUp){
+            print "Se ha querido subir ".$buildingName." a grado ".$level." cuando esta en grado ".($levelUp-1).". Se ignora acción.\n";
+            return 0;
+        }
+        //_________Comprobación de si se puede subir nivel terminada___________
+        
 
+        //Ahora ya sabemos que existe el botón de subir nivel, accedemos a él y lo pinchamos:
+        $aux = explode("'",$docVistaEdificio->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('onclick')."\n");
+        $upgrade = 'http://ts5.travian.net/'.$aux[1];
+        curl_setopt($ch,CURLOPT_URL, $upgrade);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        curl_exec($ch);
+
+        print "Se ha subido ".$buildingName." a grado ".$levelUp.".\n";
+
+        if($noAvanzarIndice == 1){
+            return -1;
+        }
+
+        return 0;
     }
 
-    public function build($buildingName) {
-        echo "build method\n";
-
-        print "Tratamos de construir el edificio ".$buildingName."\n";
-
+    public function build($buildingName, $ch) {
         //Obtenemos de la lista el id en el que está construido
         $id = $this->idBuilding($buildingName);
-        print "El id que tenemos es: ".$id."\n";
+
+        if($id==39){
+            return $this->buildPlazaReuniones($level, $ch);
+        }
+
+        if($id==40){
+            return $this->buildMuralla($level, $ch);
+        }
 
         //Obtenemos la categoría del edificio:
         $category = $this->categoryBuilding($buildingName);
-        print "La categoría que tenemos es: ".$category."\n";
 
         //Obtenemos el contract_building del edificio, que identifica el id del html al que queremos acceder
         $contract = "contract_building".$this->contractBuilding($buildingName);
-        print "El contract que tenemos es: ".$contract."\n";
 
         
         //Cargamos el html correspondiente al menu en el que está el botón de construir edficio
         $urlVistaConstruccion = 'http://ts5.travian.net/build.php?id='.$id."&category=".$category;
-        curl_setopt($this->ch,CURLOPT_URL, $urlVistaConstruccion);
-        curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
-        $vistaConstruccionHTML = curl_exec($this->ch);
+        curl_setopt($ch,CURLOPT_URL, $urlVistaConstruccion);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        $vistaConstruccionHTML = curl_exec($ch);
 
         $docVistaConstruccion = new DOMDocument();
         libxml_use_internal_errors(true);
         $docVistaConstruccion->loadHTML($vistaConstruccionHTML);
 
-        //Comprbamos si se puede construir
-        //¿Hay suficientes recursos?
-        $madera =  (int)$docVistaConstruccion->getElementById('l1')->nodeValue;
-        $barro =  (int)$docVistaConstruccion->getElementById('l2')->nodeValue;
-        $hierro = (int)$docVistaConstruccion->getElementById('l3')->nodeValue;
-        $cereal =  (int)$docVistaConstruccion->getElementById('l4')->nodeValue;
-        $saldoCereal = (int)$docVistaConstruccion->getElementById('stockBarFreeCrop')->nodeValue;
+        //______Comprobamos si se puede subir nivel_____________
+        //Miramos que el edificio no este ampliado al maximo:
+        $maximo = explode(" ",$docVistaConstruccion->getElementById('contract')->childNodes->item(0)->nodeValue."\n");
+        if(strncmp ($maximo[count($maximo)-1] , "completamente", 13)==0){
+            print "Se ha querido construir ".$buildingName." pero el edificio ya está construido y ampliado completamente. Se ignora acción.\n";
+            return 0;
+        }
 
-        print "TENEMOS -> Madera: ".$madera."  Barro: ".$barro."   Hierro: ".$hierro."   Cereal: ".$cereal."   Saldo de cereal: ".$saldoCereal."\n";
-
+        //Comprobamos que el edificio no esta construido:
+        $estado =  explode(" ",$docVistaConstruccion->getElementById('content')->childNodes->item(1)->nodeValue."\n");
         
-        $maderaCoste =  (int)$docVistaConstruccion->getElementById($contract)->childNodes->item(3)->childNodes->item(0)->childNodes->item(0)->nodeValue;
-        $barroCoste =  (int)$docVistaConstruccion->getElementById($contract)->childNodes->item(3)->childNodes->item(0)->childNodes->item(1)->nodeValue;
-        $hierroCoste = (int)$docVistaConstruccion->getElementById($contract)->childNodes->item(3)->childNodes->item(0)->childNodes->item(2)->nodeValue;
-        $cerealCoste =  (int)$docVistaConstruccion->getElementById($contract)->childNodes->item(3)->childNodes->item(0)->childNodes->item(3)->nodeValue;
-        $saldoCerealCoste = (int)$docVistaConstruccion->getElementById($contract)->childNodes->item(3)->childNodes->item(0)->childNodes->item(4)->nodeValue;
+        if(strncmp ($estado[0] , "Construir", 9)!=0){
+            print "Se ha querido construir ".$buildingName." pero el edificio ya está construido. Se ignora acción.\n";
+            return 0;
+        }
 
-        print "CUESTA -> Madera: ".$maderaCoste."  Barro: ".$barroCoste."   Hierro: ".$hierroCoste."   Cereal: ".$cerealCoste."   Saldo de cereal: ".$saldoCerealCoste."\n";
+        //Comproamos si hay suficientes recursos.
+        //Obtenemos los recursos actuales:
+        $recursos[0] =  (int)$docVistaConstruccion->getElementById('l1')->nodeValue;
+        $recursos[1] =  (int)$docVistaConstruccion->getElementById('l2')->nodeValue;
+        $recursos[2] = (int)$docVistaConstruccion->getElementById('l3')->nodeValue;
+        $recursos[3] =  (int)$docVistaConstruccion->getElementById('l4')->nodeValue;
+        $recursos[4] = (int)$docVistaConstruccion->getElementById('stockBarFreeCrop')->nodeValue;
 
-        if(!(($madera-$maderaCoste>=0)&&($barro-$barroCoste>=0)&&($hierro-$hierroCoste>=0)&&($cereal-$cerealCoste>=0)&&($saldoCereal-$saldoCerealCoste>=0))){
-            print "No hay suficientes recursos\n";
+        //Obtenemos los recursos que cuesta subir el edificio:
+        $recursosCoste[0] =  (int)$docVistaConstruccion->getElementById($contract)->childNodes->item(3)->childNodes->item(0)->childNodes->item(0)->nodeValue;
+        $recursosCoste[1] =  (int)$docVistaConstruccion->getElementById($contract)->childNodes->item(3)->childNodes->item(0)->childNodes->item(1)->nodeValue;
+        $recursosCoste[2] = (int)$docVistaConstruccion->getElementById($contract)->childNodes->item(3)->childNodes->item(0)->childNodes->item(2)->nodeValue;
+        $recursosCoste[3] =  (int)$docVistaConstruccion->getElementById($contract)->childNodes->item(3)->childNodes->item(0)->childNodes->item(3)->nodeValue;
+        $recursosCoste[4] = (int)$docVistaConstruccion->getElementById($contract)->childNodes->item(3)->childNodes->item(0)->childNodes->item(4)->nodeValue;
+
+        //Comprobamos si son suficientes y en caso de no serlo salimos de la función.
+        if(!(($recursos[0]-$recursosCoste[0]>=0)&&($recursos[1]-$recursosCoste[1]>=0)&&($recursos[2]-$recursosCoste[2]>=0)&&($recursos[3]-$recursosCoste[3]>=0)&&($recursos[4]-$recursosCoste[4]>=0))){
+            print "No hay suficientes recursos para construir ".$buildingName.".\n";
             return -1;
-        }else{
-            print "SI Hay suficientes recursos\n";
         }
         
 
-        //¿Hay constructores disponibles?
+        //Comprobamos si hay constructores
+        //NOTA: este control sirve para comprobar todo, pero para identificar el problema por el cual no se sube el edificio lo hemos separado en dos controles.
         $constructores =  explode("'",$docVistaConstruccion->getElementById($contract)->childNodes->item(5)->childNodes->item(0)->getAttribute('class')."\n");
         
         if(strncmp ($constructores[0] , "none",4)==0){
-            print "No hay constructores disponibles\n";
+            print "No hay constructores disponibles en el centro de la aldea\n";
             return -1;
-        }else{
-            print "SI Hay constructores\n";
         }
+        //_________Comprobación de si se puede subir nivel terminada___________
+        
         
 
-        //Buscamos el botón
-        //Primero buscamos el div del edificio que queremos consturir, ayudándonos del contract_building
+        //Ahora ya sabemos que existe el botón de construir, accedemos a él y lo pinchamos:
         $aux = explode("'",$docVistaConstruccion->getElementById($contract)->childNodes->item(5)->childNodes->item(0)->getAttribute('onclick')."\n");
         $build = 'http://ts5.travian.net/'.$aux[1];        
         
-        curl_setopt($this->ch,CURLOPT_URL, $build);
-        curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
-        curl_exec($this->ch);
+        curl_setopt($ch,CURLOPT_URL, $build);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        curl_exec($ch);
+
+        print "Se ha construido ".$buildingName.".\n";
+
+        return 0;
+    }
+
+    //Estas dos funciones seran necesarias para construir una aldea desde 0.
+    
+    public function buildMuralla($ch){
+        //Cargamos el html correspondiente al menu en el que está el botón de construir edficio
+        $urlVistaConstruccion = 'http://ts5.travian.net/build.php?id=40';
+        curl_setopt($ch,CURLOPT_URL, $urlVistaConstruccion);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        $vistaConstruccionHTML = curl_exec($ch);
+
+        $docVistaConstruccion = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $docVistaConstruccion->loadHTML($vistaConstruccionHTML);
+
+        //______Comprobamos si se puede subir nivel_____________
+        //Miramos que el edificio no este ampliado al maximo:
+        $maximo = explode(" ",$docVistaConstruccion->getElementById('contract')->childNodes->item(0)->nodeValue."\n");
+        if(strncmp ($maximo[count($maximo)-1] , "completamente", 13)==0){
+            print "Se ha querido construir Muralla pero el edificio ya está construido y ampliado completamente. Se ignora acción.\n";
+            return 0;
+        }
+
+        //Comprobamos que el edificio no esta construido:
+        $estado =  explode(" ",$docVistaConstruccion->getElementById('content')->childNodes->item(1)->nodeValue."\n");
+        
+        if(strncmp ($estado[0] , "Construir", 9)!=0){
+            print "Se ha querido construir Muralla pero el edificio ya está construido. Se ignora acción.\n";
+            return 0;
+        }
+
+        //Comprobamos si hay suficientes recursos.
+        //Obtenemos los recursos actuales:
+        $recursos[0] =  (int)$docVistaConstruccion->getElementById('l1')->nodeValue;
+        $recursos[1] =  (int)$docVistaConstruccion->getElementById('l2')->nodeValue;
+        $recursos[2] = (int)$docVistaConstruccion->getElementById('l3')->nodeValue;
+        $recursos[3] =  (int)$docVistaConstruccion->getElementById('l4')->nodeValue;
+        $recursos[4] = (int)$docVistaConstruccion->getElementById('stockBarFreeCrop')->nodeValue;
+
+        //Obtenemos los recursos que cuesta subir el edificio:
+        $recursosCoste[0] =  (int)$docVistaConstruccion->getElementById("contract_building31")->childNodes->item(3)->childNodes->item(0)->childNodes->item(0)->nodeValue;
+        $recursosCoste[1] =  (int)$docVistaConstruccion->getElementById("contract_building31")->childNodes->item(3)->childNodes->item(0)->childNodes->item(1)->nodeValue;
+        $recursosCoste[2] = (int)$docVistaConstruccion->getElementById("contract_building31")->childNodes->item(3)->childNodes->item(0)->childNodes->item(2)->nodeValue;
+        $recursosCoste[3] =  (int)$docVistaConstruccion->getElementById("contract_building31")->childNodes->item(3)->childNodes->item(0)->childNodes->item(3)->nodeValue;
+        $recursosCoste[4] = (int)$docVistaConstruccion->getElementById("contract_building31")->childNodes->item(3)->childNodes->item(0)->childNodes->item(4)->nodeValue;
+
+        //Comprobamos si son suficientes y en caso de no serlo salimos de la función.
+        if(!(($recursos[0]-$recursosCoste[0]>=0)&&($recursos[1]-$recursosCoste[1]>=0)&&($recursos[2]-$recursosCoste[2]>=0)&&($recursos[3]-$recursosCoste[3]>=0)&&($recursos[4]-$recursosCoste[4]>=0))){
+            print "No hay suficientes recursos para construir Muralla.\n";
+            return -1;
+        }
+        
+
+        //Comprobamos si hay constructores
+        //NOTA: este control sirve para comprobar todo, pero para identificar el problema por el cual no se sube el edificio lo hemos separado en dos controles.
+        $constructores =  explode("'",$docVistaConstruccion->getElementById("contract_building31")->childNodes->item(5)->childNodes->item(0)->getAttribute('class')."\n");
+        
+        if(strncmp ($constructores[0] , "none",4)==0){
+            print "No hay constructores disponibles en el centro de la aldea.\n";
+            return -1;
+        }
+        //_________Comprobación de si se puede subir nivel terminada___________
         
         
 
+        //Ahora ya sabemos que existe el botón de construir, accedemos a él y lo pinchamos:
+        $aux = explode("'",$docVistaConstruccion->getElementById("contract_building31")->childNodes->item(5)->childNodes->item(0)->getAttribute('onclick')."\n");
+        $build = 'http://ts5.travian.net/'.$aux[1];        
+        
+        curl_setopt($ch,CURLOPT_URL, $build);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        curl_exec($ch);
+
+        print "Se ha construido Muralla.\n";
+    
+        return 0;
     }
 
-    public function listData() {
-        echo "listData method";
+    public function buildPlazaReuniones($ch){
+        print "Función buildPlazaReuniones sin implementar\n";
+        return -1;
     }
+
+
+
+    
 
     private function idBuilding($buildingName){
-        $array = explode(';',$this->buildingsType[$buildingName]);
-        $array2 = explode('=',$array[1]);
+        $array = $this->buildingsPosition[$buildingName];  
+        $array2 = explode('=',$array);
         return (int)$array2[1];
     }
 
@@ -209,7 +331,7 @@ class Center
 
     private function contractBuilding($buildingName){
         $array = explode(';',$this->buildingsType[$buildingName]);
-        $array2 = explode('=',$array[2]);
+        $array2 = explode('=',$array[1]);
         return (int)$array2[1];
     }
 
