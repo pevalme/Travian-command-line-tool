@@ -38,6 +38,8 @@ class Account
         //exit;
         while(1){
 
+            //$this->comprobarSesion();  //METODO AUN SIN FUNCIONAR
+
             print "\n\n___________________________________________________________________\n";
             print "_____________ Comienzo del turno: ".date("Y-m-d H:i:s")." _____________\n";
 
@@ -217,7 +219,7 @@ class Account
 
 
 
-    /*____________ METODOS PARA INICIAR Y CERRAR LA CONEXIÓN ___________*/
+    /*____________ METODOS PARA INICIAR, MANTENER Y CERRAR LA CONEXIÓN ___________*/
 
     public function iniciarSesion(){
 
@@ -252,6 +254,29 @@ class Account
 
         //execute post
         $result = curl_exec($this->ch);
+    }
+
+    public function comprobarSesion(){
+
+        //Cargamos el html que aparece al pinchar sobre el edificio.
+        $urlVistaPpal = 'http://ts5.travian.net/dorf1.php';
+        curl_setopt($this->ch,CURLOPT_URL, $urlVistaPpal);
+        curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
+        $vistaPpalHTML = curl_exec($this->ch);
+
+        $docVistaPpal = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $docVistaPpal->loadHTML($vistaPpalHTML);
+
+        //Comprobamos que estamos con la sesion 
+        $estado =  explode("L",$docVistaPpal->getElementById('content')->childNodes->item(1)->nodeValue."\n");
+        print $estado[1];
+        if(strncmp ($estado[1] , "ogin", 4)==0){
+            print "Se ha cerrado sesión, tratamos de volver a abrirla.\n";
+            $this->iniciarSesion();
+            return 0;
+        }
+
     }
 
 
