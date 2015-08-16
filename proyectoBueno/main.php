@@ -55,4 +55,10 @@
     echo "FIN\n";
 
 
+    /*
+		Subimos a nivel 3 un edificio que está en nivel 1, lo sube al 2 y no cambia indice.
+		Subimos a nivel 2 un edificio que no esta construido y lo construye sin incrementar el indice.
+		Subimos a nivel 2 edificio que esta al 4. Se ignora la accion. PETA SI EL EDIFICIO QUE HEMOS QUERIDO SUBIR ESTÁ YA AL MAXIMO.
+    */
+
 ?>

@@ -27,7 +27,7 @@ class Account
 
         while(1){
 
-            print "___________________________________________________________________\n";
+            print "\n\n___________________________________________________________________\n";
             print "_____________ Comienzo del turno: ".date("Y-m-d H:i:s")." _____________\n";
 
 
@@ -37,9 +37,12 @@ class Account
 
                 //Miramos si hay ordenes de constrruccion definidas:
                 if ($this->getIndiceFieldsAldea($numAldea) < count($this->getAutFieldsAldea($numAldea))){
-                    //Miramos si se puede subir de nivel algún recurso y lo subimos si se puede.
-                    if ($this->upgradeFields($this->getAutFieldsAldea($numAldea)[$this->getIndiceFieldsAldea($numAldea)], $numAldea) == 0){
-                        print "Hemos subido de nivel el ".$this->getAutFieldsAldea($numAldea)[$this->getIndiceFieldsAldea($numAldea)].".\n";
+                    //Miramos qué edificio vamos a subir de nivel.
+                    $level = $this->obtenerNivel($this->getAutFieldsAldea($numAldea)[$this->getIndiceFieldsAldea($numAldea)]);
+                    $edificio = $this->obtenerEdificio($this->getAutFieldsAldea($numAldea)[$this->getIndiceFieldsAldea($numAldea)]);
+
+                    //Miramos si se puede subir de nivel el edificio y lo subimos si se puede.
+                    if ($this->upgradeFields($edificio, $level, $numAldea) == 0){
                         $this->increaseIndiceFieldsAldea($numAldea);
                     }
                 }else{
@@ -49,20 +52,18 @@ class Account
 
                 //Miramos si hay ordenes de constrruccion definidas:
                 if ($this->getIndiceCenterAldea($numAldea) < count($this->getAutCenterAldea($numAldea))){
-                    //Miramos si en el centro toca consturir o subir de nivel
-                    $accion = $this->obtenerAccion($this->getAutCenterAldea($numAldea)[$this->getIndiceCenterAldea($numAldea)]);
+                    //Miramos si en el centro toca construir o subir de nivel. Y el edficio en cuestión.
+                    $level = $this->obtenerNivel($this->getAutCenterAldea($numAldea)[$this->getIndiceCenterAldea($numAldea)]);
                     $edificio = $this->obtenerEdificio( $this->getAutCenterAldea($numAldea)[$this->getIndiceCenterAldea($numAldea)]);
 
                     //Miramos si se puede realizar esa accion y si se puede la realizamos.
-                    if($accion == 0){
+                    if($level == 1){
                         if ($this->buildCenter($edificio, $numAldea) == 0){
-                            print "Hemos construido el ".$edificio.".\n";
                             $this->increaseIndiceCenterAldea($numAldea);
                         }
 
                     }else{
-                        if ($this->upgradeCenter($edificio, $numAldea) == 0){
-                            print "Hemos subido de nivel el ".$edificio.".\n";
+                        if ($this->upgradeCenter($edificio, $level, $numAldea) == 0){
                             $this->increaseIndiceCenterAldea($numAldea);
                         }
                     }
@@ -75,7 +76,7 @@ class Account
 
             $this->guardarIndices();
 
-            $espera = rand(100,600);
+            $espera = rand(10,20);
             print "\n-Siguiente ejecución en ".$espera." segundos.\n";
             print "_______________ Fin del turno: ".date("Y-m-d H:i:s")." ________________\n";
             print "___________________________________________________________________\n";
@@ -83,20 +84,16 @@ class Account
         }
     }
 
-    /* _____________ METODOS AUXILIARES QUE USA LA IA ______________*/
+    /* _____________ METODOS AUXILIARES PARA MANEJAR LA INFORMACION DEL ARRAY DE AUTOMATIZACION ______________*/
 
-    private function obtenerAccion($cadena){
-        $orden = explode("-",$cadena);
-
-        if(strcmp($orden[0] , "construir")==0){
-            return 0; //construir
-        }
-        return 1; //subir
+    private function obtenerNivel($cadena){
+        $nivel = explode("-",$cadena);
+        return (int)$nivel[1];
     }
 
     private function obtenerEdificio($cadena){
         $edificio = explode("-",$cadena);
-        return $edificio[1];
+        return $edificio[0];
     }
 
     // Obtiene array doble, leyendo del bloc de notas, con lo que toca construir en cada aldea
@@ -199,12 +196,12 @@ class Account
         return $this->villages[$numAldea]->buildCenter($buildingName, $this->ch);
     }
 
-    public function upgradeCenter($buildingName, $numAldea){
-        return $this->villages[$numAldea]->upgradeCenter($buildingName, $this->ch);;
+    public function upgradeCenter($buildingName, $level, $numAldea){
+        return $this->villages[$numAldea]->upgradeCenter($buildingName, $level, $this->ch);;
     }
 
-    public function upgradeFields($buildingName, $numAldea){
-        return $this->villages[$numAldea]->upgradeFields($buildingName, $this->ch); ;
+    public function upgradeFields($buildingName, $level, $numAldea){
+        return $this->villages[$numAldea]->upgradeFields($buildingName, $level, $this->ch); ;
     }
 
 
@@ -297,13 +294,13 @@ class Account
         //Orden de construccion, basado en:
         // http://www.browsergamesforum.com.ar/guia-para-una-rapida-construccion-de-tus-aldeas-en-travian-t1103.html
         $automatizadorFields1 = array(
-            "Hierro1",
-            "Hierro2"
+            "Hierro1-2",
+            "Hierro2-2"
             );
 
         $automatizadorCentro1 = array(
-            "subir-Escondite2",
-            "subir-Escondite2"
+            "Escondite4-1",
+            "Escondite3-2"
             );
 
 
@@ -332,16 +329,16 @@ class Account
         );
 
         $buildingsPositionCenter[0] = array(
-        "Edificio principal" => 'id=19',
+        "Edificio principal" => 'id=26',
         "Plaza de reuniones" => 'id=39',
         "Escondite" =>  'id=21', 
         "Almacén" =>  'id=20',
-        "Granero" =>  'id=22',
-        "Embajada" => 'id=23',
+        "Granero" =>  'id=19',
+        "Escondite4" => 'id=23',
         "Mercado" => 'id=24',
         "Residencia" => 'id=25',
         "Escondite2" => 'id=28',
-        "Ayuntamiento" => 'id=30',
+        "Escondite3" => 'id=27',
         "Oficina de Comercio" => 'id=31',
         "Cuartel" => 'id=33',
         "Hogar del heroe" => '34',
@@ -349,7 +346,7 @@ class Account
         "Herrería" => 'id=36',
         "Establo" => 'id=37',
         "Molino" => 'id=26',
-        "Serrería" => 'id=27',
+        "Embajada" => 'id=30',
         "Ladrillar" => 'id=29',
         "Fundición" => 'id=32',
         "Panadería" => 'id=38',

@@ -25,12 +25,12 @@ class Village
         return $this->center->build($buildingName, $ch);
     }
 
-    public function upgradeCenter($buildingName, $ch){
-        return $this->center->upgrade($buildingName, $ch);
+    public function upgradeCenter($buildingName, $level, $ch){
+        return $this->center->upgrade($buildingName, $level, $ch);
     }
 
-    public function upgradeFields($buildingName, $ch){
-        return $this->fields->upgrade($buildingName, $ch);
+    public function upgradeFields($buildingName, $level, $ch){
+        return $this->fields->upgrade($buildingName, $level, $ch);
     }
 
     public function getIndiceFields(){
