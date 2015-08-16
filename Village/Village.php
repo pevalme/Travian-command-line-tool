@@ -6,7 +6,14 @@ require_once('Fields.php');
 class Village
 {
     // Attributes
-
+    private $fields;
+    private $center;
+    private $autFields;
+    private $autCenter;
+    private $name;
+    private $coordenadas;
+    private $indices;
+    private $url;
 
     // Constructor
     function __construct($buildingPositionFields, $buildingPositionCenter, $autFields, $autCenter, $name, $coords, $indices, $url) {

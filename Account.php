@@ -22,6 +22,7 @@ class Account
 
         // Hero
         $this->hero = null;
+
    	}
 
 
@@ -33,9 +34,6 @@ class Account
         $this->iniciarSesion();
         $this->inicializarAldeas();
 
-        //$this->villages[0]->attack($this->ch, $this->url, '',"0","-94","1","0","0","0","0","0","0","0","0","0","0","2");
-        //$this->sendToAdventure(0);
-        //exit;
         while(1){
 
             print "\n\n___________________________________________________________________\n";
@@ -379,6 +377,17 @@ class Account
             $this->hero = new HeroAdventure($this->ch, $this->url);
         }
         $this->hero->goToAdventure($this->ch, $this->url, $n);
+    }
+
+    public function attack($origin, $targetName, $targetX, $targetY, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $t10, $sendHero, $typeOfAttack){
+
+        foreach($this->villages as $index => $village){
+            if ($village->getName() == $origin){
+                $originIndex = $index;
+            }
+        }
+
+        $this->villages[$originIndex]->attack($this->ch, $this->url, $targetName, $targetX, $targetY, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $t10, $sendHero, $typeOfAttack);
     }
 }
 ?>
