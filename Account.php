@@ -6,6 +6,9 @@ require_once('Village/Village.php');
 class Account
 {
 
+    private $ch;
+    private $villages;
+    private $hero;
     // Constructor: Inicializa aldea y conexión.
     function __construct() {
 
@@ -14,9 +17,12 @@ class Account
 
         //Array de aldeas a rellenar:
         $this->villages = null;
+
+        // Hero
+        $this->hero = null;
    	}
 
-    
+
 
     /*______________ METODO PRINCIPAL: INTELIGENCIA ARTIFICIAL QUE HARÁ TODO _____________*/
 
@@ -98,7 +104,7 @@ class Account
 
     // Obtiene array doble, leyendo del bloc de notas, con lo que toca construir en cada aldea
     private function obtenerIndices(){
-        
+
         $notas = $this->leerNota();
 
         $notasToken = explode("_",$notas);
@@ -131,7 +137,7 @@ class Account
     }
 
 
-    /* __________________ METODOS PARA LEER Y ESCRIBIR EN EL BLOC DE NOTAS _____________*/    
+    /* __________________ METODOS PARA LEER Y ESCRIBIR EN EL BLOC DE NOTAS _____________*/
 
     public function leerNota(){
         //POR SEGURIDAD: Cargamos el html correspondiente al menu que aparece al pinchar en mensajes.
@@ -168,7 +174,7 @@ class Account
         $notasHTML = curl_exec($this->ch);
 
         //Rellenamos el formulario y lo enviamos.
-        $urlNotas = 'http://ts5.travian.net/nachrichten.php'; 
+        $urlNotas = 'http://ts5.travian.net/nachrichten.php';
         $fields = array(
                             't' => urlencode('4'),
                             'speichern' => urlencode('1'),
@@ -180,7 +186,7 @@ class Account
             $fields_string .= $key.'='.$value.'&';
         }
         $fields_string = rtrim($fields_string, '&');
-                
+
         curl_setopt($this->ch,CURLOPT_URL, $urlNotas);
         curl_setopt($this->ch,CURLOPT_POST, count($fields));
         curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
@@ -213,7 +219,7 @@ class Account
         //Inicializamos conexión.
         $url = 'http://ts5.travian.net/dorf1.php';
 
-        
+
         $fields = array(
                             'name' => urlencode('Digimon'),
                             'password' => urlencode('noirerve'),
@@ -230,17 +236,17 @@ class Account
         $fields_string = rtrim($fields_string, '&');
 
         //set the url, number of POST vars, POST data
-        
+
         curl_setopt($this->ch,CURLOPT_URL, $url);
         curl_setopt($this->ch,CURLOPT_POST, count($fields));
         curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->ch,CURLOPT_POSTFIELDS, $fields_string);
-        
+
         //curl will take care about the cookies
         curl_setopt($this->ch, CURLOPT_COOKIEJAR, '');
 
         //execute post
-        $result = curl_exec($this->ch);        
+        $result = curl_exec($this->ch);
     }
 
 
@@ -310,7 +316,7 @@ class Account
         $buildingsPositionFields[0] = array(
         "Leñador1" => 'id=1',
         "Leñador2" => 'id=3',
-        "Leñador3" =>  'id=14', 
+        "Leñador3" =>  'id=14',
         "Leñador4" =>  'id=17',
         "Barrera1" =>  'id=5',
         "Barrera2" => 'id=6',
@@ -331,7 +337,7 @@ class Account
         $buildingsPositionCenter[0] = array(
         "Edificio principal" => 'id=26',
         "Plaza de reuniones" => 'id=39',
-        "Escondite" =>  'id=21', 
+        "Escondite" =>  'id=21',
         "Almacén" =>  'id=20',
         "Granero" =>  'id=19',
         "Escondite4" => 'id=23',
@@ -350,7 +356,7 @@ class Account
         "Ladrillar" => 'id=29',
         "Fundición" => 'id=32',
         "Panadería" => 'id=38',
-        "Muralla" => 'id=40' 
+        "Muralla" => 'id=40'
         );
 
         //Inicializamos las aldeas.
@@ -358,7 +364,16 @@ class Account
 
     }
 
+    public function showAdventures(){
+        $this->hero = new HeroAdventure();
+        $this->hero->listData();
+    }
 
-
+    public function sendToAdventure($n){
+        if (is_null($this->hero)){
+            $this->hero = new HeroAdventure();
+        }
+        $this->hero->goTo($n);
+    }
 }
 ?>

@@ -6,7 +6,7 @@
 
 	$cuenta = new Account();
 
-	
+
 	//______ PROBANDO LOS METODOS DE SUBIR Y CONSTRUIR EDIFICIOS _____________
 	/*
 		LEER:

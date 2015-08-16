@@ -38,6 +38,7 @@ class HeroAdventure
                 $this->adventureList[trim($adv->getElementsByTagName('td')->item(2)->childNodes->item(0)->nodeValue) . ' <=> ' . $adv->getElementsByTagName('td')->item(4)->childNodes->item(1)->nodeValue] = $fields;
             }
         }
+        asort($this->adventureList);
    	}
 
     // Methods

@@ -88,6 +88,7 @@
 //    }
 //
 //    $counter = 0;
+//    asort($adventureList);
 //    foreach($adventureList as $time => $adv){
 //        echo "Aventura ". $counter++ . " encontrada a: " . $time;
 //        //foreach($adv as $index => $data){
@@ -100,28 +101,28 @@
 // Code to start an adventure
 //    $position = 0;
 //
-    echo $adventureList[array_keys($adventureList)[$position]]['href'];
-    echo "\n";
-	curl_setopt($ch,CURLOPT_URL, 'http://ts5.travian.net/' . $adventureList[array_keys($adventureList)[$position]]['href']);
-    curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
-
-    // Acces to the $position adventure
-    $result = curl_exec($ch);
-
-    //print $result;
-    $doc = new DomDocument();
-    $doc->loadHTML($result);
-
-    // Get the form that we have to submit to send the hero to the adventure
-    $action = $doc->getElementsByTagName('form')[0]->getAttribute('action');
-
-    // Get the inputs of the form
-    $inputs = $doc->getElementsByTagName('input');
-    $fields = array();
-
-    foreach($inputs as $i => $data){
-        $fields[$data->getAttribute('name')]=$data->getAttribute('value');
-    }
+//    echo $adventureList[array_keys($adventureList)[$position]]['href'];
+//    echo "\n";
+//	curl_setopt($ch,CURLOPT_URL, 'http://ts5.travian.net/' . $adventureList[array_keys($adventureList)[$position]]['href']);
+//    curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+//
+//    // Acces to the $position adventure
+//    $result = curl_exec($ch);
+//
+//    //print $result;
+//    $doc = new DomDocument();
+//    $doc->loadHTML($result);
+//
+//    // Get the form that we have to submit to send the hero to the adventure
+//    $action = $doc->getElementsByTagName('form')[0]->getAttribute('action');
+//
+//    // Get the inputs of the form
+//    $inputs = $doc->getElementsByTagName('input');
+//    $fields = array();
+//
+//    foreach($inputs as $i => $data){
+//        $fields[$data->getAttribute('name')]=$data->getAttribute('value');
+//    }
 //    $fields_string = '';
 //    for ($x = 0; $x < count($adventureList); $x++) {
 //    	$firstElement = true;
@@ -135,21 +136,21 @@
 //		}
 //	}
 //	$fields_string = rtrim($fields_string, '&');
-    $fields_string = '';
-    foreach($fields as $key=>$value) {
-        $fields_string .= $key.'='.urlencode($value).'&';
-    }
-    $fields_string = rtrim($fields_string, '&');
-
-    curl_setopt($ch,CURLOPT_URL, 'http://ts5.travian.net/' . $action);
-    curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch,CURLOPT_POST, count($fields));
-	curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
-
-    $result = curl_exec($ch);
-    //print $result;
-	//close connection
-	curl_close($ch);
+//    $fields_string = '';
+//    foreach($fields as $key=>$value) {
+//        $fields_string .= $key.'='.urlencode($value).'&';
+//    }
+//    $fields_string = rtrim($fields_string, '&');
+//
+//    curl_setopt($ch,CURLOPT_URL, 'http://ts5.travian.net/' . $action);
+//    curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+//	curl_setopt($ch,CURLOPT_POST, count($fields));
+//	curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+//
+//    $result = curl_exec($ch);
+//    //print $result;
+//	//close connection
+//	curl_close($ch);
 
 
 //////////////////////////////////////////////////////////////
