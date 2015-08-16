@@ -9,9 +9,15 @@ class Village
  
 
     // Constructor
-    function __construct($buildingPositionCenter, $buildingPositionFields) {
-        $this->center = new Center($buildingPositionCenter);
+    function __construct($buildingPositionFields, $buildingPositionCenter, $autFields, $autCenter, $name, $coords, $indices, $url) {
         $this->fields = new Fields($buildingPositionFields);
+        $this->center = new Center($buildingPositionCenter);
+        $this->autFields = $autFields;
+        $this->autCenter = $autCenter;
+        $this->name = $name;
+        $this->coordenadas = $coords;
+        $this->indices = $indices;
+        $this->url = $url;
    	}
 
     // Methods
@@ -19,12 +25,40 @@ class Village
         return $this->center->build($buildingName, $ch);
     }
 
-    public function upgradeCenter($buildingName, $ch){
-        return $this->center->upgrade($buildingName, $ch);
+    public function upgradeCenter($buildingName, $level, $ch){
+        return $this->center->upgrade($buildingName, $level, $ch);
     }
 
-    public function upgradeField($buildingName, $ch){
-        return $this->fields->upgrade($buildingName, $ch);
+    public function upgradeFields($buildingName, $level, $ch){
+        return $this->fields->upgrade($buildingName, $level, $ch);
+    }
+
+    public function getIndiceFields(){
+        return $this->indices[0];
+    }
+
+    public function getIndiceCenter(){
+        return $this->indices[1];
+    }
+
+    public function getAutFields(){
+        return $this->autFields;
+    }
+
+    public function getAutCenter(){
+        return $this->autCenter;
+    }
+
+    public function increaseIndiceFields(){
+        $this->indices[0]++;
+    }
+
+    public function increaseIndiceCenter(){
+        $this->indices[1]++;
+    }
+
+    public function getName(){
+        return $this->name;
     }
 
 }

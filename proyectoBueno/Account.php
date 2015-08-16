@@ -9,184 +9,66 @@ class Account
     // Constructor: Inicializa aldea y conexión.
     function __construct() {
 
-        $this->indices = null;
-
-        //Orden de construccion, basado en:
-        // http://www.browsergamesforum.com.ar/guia-para-una-rapida-construccion-de-tus-aldeas-en-travian-t1103.html
-        $this->automatizadorFuera1 = array(
-            "Granja1",
-            "Granja4",
-            "Granja5",
-            "Granja6",
-            "Barrera1",
-            "Barrera2"
-            );
-
-        $this->automatizadorCentro1 = array(
-            "subir-Escondite",
-            "subir-Escondite"
-            );
-
-        //Inicializamos las aldeas que tenemos actualmente.
-        //______ALDEA 0______
-        $buildingsPositionFields[0] = array(
-        "Leñador1" => 'id=1',
-        "Leñador2" => 'id=3',
-        "Leñador3" =>  'id=14', 
-        "Leñador4" =>  'id=17',
-        "Barrera1" =>  'id=5',
-        "Barrera2" => 'id=6',
-        "Barrera3" => 'id=16',
-        "Barrera4" => 'id=18',
-        "Hierro1" => 'id=4',
-        "Hierro2" => 'id=7',
-        "Hierro3" => 'id=10',
-        "Hierro4" => 'id=11',
-        "Granja1" => 'id=8',
-        "Granja2" => 'id=9',
-        "Granja3" => 'id=13',
-        "Granja4" => 'id=12',
-        "Granja5" => 'id=2',
-        "Granja6" => 'id=15'
-        );
-
-        $buildingsPositionCenter[0] = array(
-        "Edificio principal" => 'id=19',
-        "Plaza de reuniones" => 'id=39',
-        "Escondite" =>  'id=21', 
-        "Almacén" =>  'id=20',
-        "Granero" =>  'id=22',
-        "Embajada" => 'id=23',
-        "Mercado" => 'id=24',
-        "Residencia" => 'id=25',
-        "Tesoro" => 'id=28',
-        "Ayuntamiento" => 'id=30',
-        "Oficina de Comercio" => 'id=31',
-        "Cuartel" => 'id=33',
-        "Hogar del heroe" => '34',
-        "Academia" => 'id=35',
-        "Herrería" => 'id=36',
-        "Establo" => 'id=37',
-        "Molino" => 'id=26',
-        "Serrería" => 'id=27',
-        "Ladrillar" => 'id=29',
-        "Fundición" => 'id=32',
-        "Panadería" => 'id=38',
-        "Muralla" => 'id=40' 
-        );
-
-        $this->villages[0] = new Village($buildingsPositionCenter[0], $buildingsPositionFields[0]);
-
-       
         //open connection
         $this->ch = curl_init();
+
+        //Array de aldeas a rellenar:
+        $this->villages = null;
    	}
 
-    // Methods
+    
 
-    public function iniciarSesion(){
-
-        //Inicializamos conexión.
-        $url = 'http://ts5.travian.net/dorf1.php';
-
-        
-        $fields = array(
-                            'name' => urlencode('Digimon'),
-                            'password' => urlencode('noirerve'),
-                            'lowRes' => urlencode('1'),
-                            'w' => urlencode(''),
-                            'login' => urlencode('1437574738')
-                    );
-
-        //url-ify the data for the POST
-        $fields_string = '';
-        foreach($fields as $key=>$value) {
-            $fields_string .= $key.'='.$value.'&';
-        }
-        $fields_string = rtrim($fields_string, '&');
-
-        //set the url, number of POST vars, POST data
-        
-        curl_setopt($this->ch,CURLOPT_URL, $url);
-        curl_setopt($this->ch,CURLOPT_POST, count($fields));
-        curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($this->ch,CURLOPT_POSTFIELDS, $fields_string);
-        
-        //curl will take care about the cookies
-        curl_setopt($this->ch, CURLOPT_COOKIEJAR, '');
-
-        //execute post
-        $result = curl_exec($this->ch);
-
-        
-    }
-
-    public function iniciarIndices(){
-        //Inicializamos indices
-        $this->indices = $this->obtenerIndices();
-    }
-
-    public function buildCenter($buildingName, $numAldea){
-        return $this->villages[$numAldea]->buildCenter($buildingName, $this->ch);
-    }
-
-    public function upgradeCenter($buildingName, $numAldea){
-        return $this->villages[$numAldea]->upgradeCenter($buildingName, $this->ch);;
-    }
-
-    public function upgradeField($buildingName, $numAldea){
-        return $this->villages[$numAldea]->upgradeField($buildingName, $this->ch); ;
-    }
-
-    public function closeConnection(){
-        curl_close($this->ch);
-    }
+    /*______________ METODO PRINCIPAL: INTELIGENCIA ARTIFICIAL QUE HARÁ TODO _____________*/
 
     public function ia(){
 
-        $this->iniciarIndices();
+        $this->iniciarSesion();
+        $this->inicializarAldeas();
 
         while(1){
-            for($numAldea = 0; $numAldea < count($this->indices); $numAldea++){
+
+            print "\n\n___________________________________________________________________\n";
+            print "_____________ Comienzo del turno: ".date("Y-m-d H:i:s")." _____________\n";
+
+
+            for($numAldea = 0; $numAldea < count($this->villages); $numAldea++){
+
+                print "\n______ Aldea: ".$this->getNameAldea($numAldea)." ______\n";
+
                 //Miramos si hay ordenes de constrruccion definidas:
-                if ($this->indices[$numAldea][0] < count($this->automatizadorFuera1)){
-                    //Miramos si se puede subir de nivel algún recurso y lo subimos si se puede.
-                    if ($this->upgradeField($this->automatizadorFuera1[$this->indices[$numAldea][0]], $numAldea) == 0){
-                        print "Hemos subido de nivel el ".$this->automatizadorFuera1[$this->indices[$numAldea][0]]." a las ";
-                        print date("Y-m-d H:i:s"); 
-                        print " en la aldea ".$numAldea.".\n";
-                        $this->indices[$numAldea][0]++;
+                if ($this->getIndiceFieldsAldea($numAldea) < count($this->getAutFieldsAldea($numAldea))){
+                    //Miramos qué edificio vamos a subir de nivel.
+                    $level = $this->obtenerNivel($this->getAutFieldsAldea($numAldea)[$this->getIndiceFieldsAldea($numAldea)]);
+                    $edificio = $this->obtenerEdificio($this->getAutFieldsAldea($numAldea)[$this->getIndiceFieldsAldea($numAldea)]);
+
+                    //Miramos si se puede subir de nivel el edificio y lo subimos si se puede.
+                    if ($this->upgradeFields($edificio, $level, $numAldea) == 0){
+                        $this->increaseIndiceFieldsAldea($numAldea);
                     }
                 }else{
-                    print "No hay ordenes de construcción definidas en el exterior de la aldea ".$numAldea.".\n";
+                    print "No hay ordenes de construcción definidas en el exterior de la aldea.\n";
                 }
 
 
                 //Miramos si hay ordenes de constrruccion definidas:
-                if ($this->indices[$numAldea][0] < count($this->automatizadorFuera1)){
-                    //Miramos si en el centro toca consturir o subir de nivel
-                    $accion = $this->obtenerAccion($this->automatizadorCentro1[$this->indices[$numAldea][1]]);
-                    $edificio = $this->obtenerEdificio($this->automatizadorCentro1[$this->indices[$numAldea][1]]);
+                if ($this->getIndiceCenterAldea($numAldea) < count($this->getAutCenterAldea($numAldea))){
+                    //Miramos si en el centro toca construir o subir de nivel. Y el edficio en cuestión.
+                    $level = $this->obtenerNivel($this->getAutCenterAldea($numAldea)[$this->getIndiceCenterAldea($numAldea)]);
+                    $edificio = $this->obtenerEdificio( $this->getAutCenterAldea($numAldea)[$this->getIndiceCenterAldea($numAldea)]);
 
                     //Miramos si se puede realizar esa accion y si se puede la realizamos.
-                    if($accion == 0){
+                    if($level == 1){
                         if ($this->buildCenter($edificio, $numAldea) == 0){
-                            print "Hemos construido el ".$edificio." a las ";
-                            print date("Y-m-d H:i:s"); 
-                            print " en la aldea ".$numAldea.".\n";
-                            $this->indices[$numAldea][1]++;
+                            $this->increaseIndiceCenterAldea($numAldea);
                         }
 
                     }else{
-                        if ($this->upgradeCenter($edificio, $numAldea) == 0){
-                            print "Hemos subido de nivel el ".$edificio." a las ";
-                            print date("Y-m-d H:i:s"); 
-                            print " en la aldea ".$numAldea.".\n";
-                            $this->indices[$numAldea][1]++;
+                        if ($this->upgradeCenter($edificio, $level, $numAldea) == 0){
+                            $this->increaseIndiceCenterAldea($numAldea);
                         }
                     }
                 }else{
-                    print "No hay ordenes de construcción definidas en el centro de la aldea ".$numAldea.".\n";
+                    print "No hay órdenes de construcción definidas en el centro de la aldea.\n";
                 }
 
                 $numAldea++;
@@ -194,29 +76,62 @@ class Account
 
             $this->guardarIndices();
 
-            print "Turno: ";
-            print date("Y-m-d H:i:s"); 
-            print ".\n";
-
-            $espera = rand(150,600);
-            print ("Siguiente ejecución en ".$espera." segundos.\n\n");
+            $espera = rand(10,20);
+            print "\n-Siguiente ejecución en ".$espera." segundos.\n";
+            print "_______________ Fin del turno: ".date("Y-m-d H:i:s")." ________________\n";
+            print "___________________________________________________________________\n";
             sleep($espera);
         }
     }
 
-    private function obtenerAccion($cadena){
-        $orden = explode("-",$cadena);
+    /* _____________ METODOS AUXILIARES PARA MANEJAR LA INFORMACION DEL ARRAY DE AUTOMATIZACION ______________*/
 
-        if(strcmp($cadena[0] , "construir")==0){
-            return 0; //construir
-        }
-        return 1; //subir
+    private function obtenerNivel($cadena){
+        $nivel = explode("-",$cadena);
+        return (int)$nivel[1];
     }
 
     private function obtenerEdificio($cadena){
         $edificio = explode("-",$cadena);
-        return $edificio[1];
+        return $edificio[0];
     }
+
+    // Obtiene array doble, leyendo del bloc de notas, con lo que toca construir en cada aldea
+    private function obtenerIndices(){
+        
+        $notas = $this->leerNota();
+
+        $notasToken = explode("_",$notas);
+        $index = 0;
+
+        foreach ($notasToken as $token) {
+            $indexToken = explode(":",$token);
+            $indices[$index][0] = $indexToken[1];
+            $indices[$index][1] = $indexToken[2];
+            $index++;
+        }
+
+        return $indices;
+    }
+
+    // Guarda en el bloc de notas el array con la información de lo que toca consturir en cada aldea
+    private function guardarIndices(){
+        $cadena = "";
+        $numAldea = 0;
+
+        for($numAldea = 0; $numAldea < count($this->villages); $numAldea++){
+            if($numAldea > 0){
+                $cadena = $cadena."_";
+            }
+            $cadena = $cadena.$numAldea.":".$this->getIndiceFieldsAldea($numAldea).":".$this->getIndiceCenterAldea($numAldea);
+            $numAldea++;
+        }
+
+        $this->escribirNota($cadena);
+    }
+
+
+    /* __________________ METODOS PARA LEER Y ESCRIBIR EN EL BLOC DE NOTAS _____________*/    
 
     public function leerNota(){
         //POR SEGURIDAD: Cargamos el html correspondiente al menu que aparece al pinchar en mensajes.
@@ -272,41 +187,178 @@ class Account
         curl_setopt($this->ch,CURLOPT_POSTFIELDS, $fields_string);
 
         $notasHTML = curl_exec($this->ch);
-
     }
 
-    public function obtenerIndices(){
+
+    /*________________ METODOS DE CONSTRUCCIÓN DE EDIFCIOS _______________*/
+
+    public function buildCenter($buildingName, $numAldea){
+        return $this->villages[$numAldea]->buildCenter($buildingName, $this->ch);
+    }
+
+    public function upgradeCenter($buildingName, $level, $numAldea){
+        return $this->villages[$numAldea]->upgradeCenter($buildingName, $level, $this->ch);;
+    }
+
+    public function upgradeFields($buildingName, $level, $numAldea){
+        return $this->villages[$numAldea]->upgradeFields($buildingName, $level, $this->ch); ;
+    }
+
+
+
+    /*____________ METODOS PARA INICIAR Y CERRAR LA CONEXIÓN ___________*/
+
+    public function iniciarSesion(){
+
+        //Inicializamos conexión.
+        $url = 'http://ts5.travian.net/dorf1.php';
+
         
-        $notas = $this->leerNota();
+        $fields = array(
+                            'name' => urlencode('Digimon'),
+                            'password' => urlencode('noirerve'),
+                            'lowRes' => urlencode('1'),
+                            'w' => urlencode(''),
+                            'login' => urlencode('1437574738')
+                    );
 
-        $notasToken = explode("_",$notas);
-        $index = 0;
-
-        foreach ($notasToken as $token) {
-            $indexToken = explode(":",$token);
-            $indices[$index][0] = $indexToken[1];
-            $indices[$index][1] = $indexToken[2];
-            $index++;
+        //url-ify the data for the POST
+        $fields_string = '';
+        foreach($fields as $key=>$value) {
+            $fields_string .= $key.'='.$value.'&';
         }
+        $fields_string = rtrim($fields_string, '&');
 
-        return $indices;
+        //set the url, number of POST vars, POST data
+        
+        curl_setopt($this->ch,CURLOPT_URL, $url);
+        curl_setopt($this->ch,CURLOPT_POST, count($fields));
+        curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($this->ch,CURLOPT_POSTFIELDS, $fields_string);
+        
+        //curl will take care about the cookies
+        curl_setopt($this->ch, CURLOPT_COOKIEJAR, '');
+
+        //execute post
+        $result = curl_exec($this->ch);        
+    }
+
+
+    public function closeConnection(){
+        curl_close($this->ch);
+    }
+
+
+
+
+    /*________________ METODOS GETTERS Y SETTERS _______________*/
+
+    public function getIndiceFieldsAldea($numAldea){
+        return $this->villages[$numAldea]->getIndiceFields();
+    }
+
+    public function getIndiceCenterAldea($numAldea){
+        return $this->villages[$numAldea]->getIndiceCenter();
+    }
+
+    public function getAutFieldsAldea($numAldea){
+        return $this->villages[$numAldea]->getAutFields();
+    }
+
+    public function getAutCenterAldea($numAldea){
+        return $this->villages[$numAldea]->getAutCenter();
+    }
+
+    public function increaseIndiceFieldsAldea($numAldea){
+        $this->villages[$numAldea]->increaseIndiceFields();
+    }
+
+    public function increaseIndiceCenterAldea($numAldea){
+        $this->villages[$numAldea]->increaseIndiceCenter();
+    }
+
+    public function getNameAldea($numAldea){
+        return $this->villages[$numAldea]->getName();
+    }
+
+
+    /*_____________ METODO PARA INICIALIZAR LAS ALDEAS CON TODOS LOS DATOS QUE USAREMOS ___________*/
+
+    public function inicializarAldeas(){
+
+        //Guardamos los indices en una variable
+        $indices = $this->obtenerIndices();
+
+        //Inicializamos los automatizadores creados actualmente
+
+        //Orden de construccion, basado en:
+        // http://www.browsergamesforum.com.ar/guia-para-una-rapida-construccion-de-tus-aldeas-en-travian-t1103.html
+        $automatizadorFields1 = array(
+            "Hierro1-2",
+            "Hierro2-2"
+            );
+
+        $automatizadorCentro1 = array(
+            "Escondite-1",
+            "Escondite-2"
+            );
+
+
+        //Inicializamos los campos de posicion de las aldeas que tenemos actualmente.
+        //NOTA: La muralla debe ir en id=40 y la plaza de reuniones en id=39.
+        //______ALDEA 0______
+        $buildingsPositionFields[0] = array(
+        "Leñador1" => 'id=1',
+        "Leñador2" => 'id=3',
+        "Leñador3" =>  'id=14', 
+        "Leñador4" =>  'id=17',
+        "Barrera1" =>  'id=5',
+        "Barrera2" => 'id=6',
+        "Barrera3" => 'id=16',
+        "Barrera4" => 'id=18',
+        "Hierro1" => 'id=4',
+        "Hierro2" => 'id=7',
+        "Hierro3" => 'id=10',
+        "Hierro4" => 'id=11',
+        "Granja1" => 'id=8',
+        "Granja2" => 'id=9',
+        "Granja3" => 'id=13',
+        "Granja4" => 'id=12',
+        "Granja5" => 'id=2',
+        "Granja6" => 'id=15'
+        );
+
+        $buildingsPositionCenter[0] = array(
+        "Edificio principal" => 'id=26',
+        "Plaza de reuniones" => 'id=39',
+        "Escondite" =>  'id=21', 
+        "Almacén" =>  'id=20',
+        "Granero" =>  'id=19',
+        "Escondite4" => 'id=23',
+        "Mercado" => 'id=24',
+        "Residencia" => 'id=25',
+        "Escondite2" => 'id=28',
+        "Escondite3" => 'id=27',
+        "Oficina de Comercio" => 'id=31',
+        "Cuartel" => 'id=33',
+        "Hogar del heroe" => '34',
+        "Academia" => 'id=35',
+        "Herrería" => 'id=36',
+        "Establo" => 'id=37',
+        "Molino" => 'id=26',
+        "Embajada" => 'id=30',
+        "Ladrillar" => 'id=29',
+        "Fundición" => 'id=32',
+        "Panadería" => 'id=38',
+        "Muralla" => 'id=40' 
+        );
+
+        //Inicializamos las aldeas.
+        $this->villages[0] = new Village($buildingsPositionFields[0], $buildingsPositionCenter[0], $automatizadorFields1, $automatizadorCentro1, 'Aldea[0]', [1,-95], $indices[0], '?newdid=73786&');
 
     }
 
-    public function guardarIndices(){
-        $cadena = "";
-        $numAldea = 0;
 
-        foreach ($this->indices as $indice){
-            if($numAldea > 0){
-                $cadena = $cadena."_";
-            }
-            $cadena = $cadena.$numAldea.":".$indice[0].":".$indice[1];
-            $numAldea++;
-        }
 
-        $this->escribirNota($cadena);
-
-    }
 }
 ?>
