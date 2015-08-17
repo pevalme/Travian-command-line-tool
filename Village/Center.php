@@ -64,13 +64,6 @@ class Center
         $docVistaEdificio->loadHTML($vistaEdficioHTML);
 
         //______Comprobamos si se puede subir nivel_____________
-        //Miramos que el edificio no este ampliado al maximo:
-        $maximo = explode(" ",$docVistaEdificio->getElementById('contract')->childNodes->item(0)->nodeValue."\n");
-        if(strncmp ($maximo[count($maximo)-1] , "completamente", 13)==0){
-            print "Se ha querido subir ".$buildingName." a grado ".$level." pero el edificio ya está ampliado completamente. Se ignora acción.\n";
-            return 0;
-        }
-
         //Comprobamos que el edificio esta construido:
         $estado =  explode(" ",$docVistaEdificio->getElementById('content')->childNodes->item(1)->nodeValue."\n");
         if(strncmp ($estado[0] , "Construir", 9)==0){
@@ -78,6 +71,14 @@ class Center
             $this->build($buildingName, $ch);
             return -1;
         }
+
+        //Miramos que el edificio no este ampliado al maximo:
+        $maximo = explode(" ",$docVistaEdificio->getElementById('contract')->childNodes->item(0)->nodeValue."\n");
+        if(strncmp ($maximo[count($maximo)-1] , "completamente", 13)==0){
+            print "Se ha querido subir ".$buildingName." a grado ".$level." pero el edificio ya está ampliado completamente. Se ignora acción.\n";
+            return 0;
+        }
+        
 
         //Comprobamos si hay suficientes recursos.
         //Obtenemos los recursos actuales:
@@ -170,16 +171,8 @@ class Center
         $docVistaConstruccion->loadHTML($vistaConstruccionHTML);
 
         //______Comprobamos si se puede subir nivel_____________
-        //Miramos que el edificio no este ampliado al maximo:
-        $maximo = explode(" ",$docVistaConstruccion->getElementById('contract')->childNodes->item(0)->nodeValue."\n");
-        if(strncmp ($maximo[count($maximo)-1] , "completamente", 13)==0){
-            print "Se ha querido construir ".$buildingName." pero el edificio ya está construido y ampliado completamente. Se ignora acción.\n";
-            return 0;
-        }
-
         //Comprobamos que el edificio no esta construido:
-        $estado =  explode(" ",$docVistaConstruccion->getElementById('content')->childNodes->item(1)->nodeValue."\n");
-        
+        $estado =  explode(" ",$docVistaConstruccion->getElementById('content')->childNodes->item(1)->nodeValue."\n"); 
         if(strncmp ($estado[0] , "Construir", 9)!=0){
             print "Se ha querido construir ".$buildingName." pero el edificio ya está construido. Se ignora acción.\n";
             return 0;
@@ -246,13 +239,6 @@ class Center
         $docVistaConstruccion->loadHTML($vistaConstruccionHTML);
 
         //______Comprobamos si se puede subir nivel_____________
-        //Miramos que el edificio no este ampliado al maximo:
-        $maximo = explode(" ",$docVistaConstruccion->getElementById('contract')->childNodes->item(0)->nodeValue."\n");
-        if(strncmp ($maximo[count($maximo)-1] , "completamente", 13)==0){
-            print "Se ha querido construir Muralla pero el edificio ya está construido y ampliado completamente. Se ignora acción.\n";
-            return 0;
-        }
-
         //Comprobamos que el edificio no esta construido:
         $estado =  explode(" ",$docVistaConstruccion->getElementById('content')->childNodes->item(1)->nodeValue."\n");
         

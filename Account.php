@@ -36,7 +36,7 @@ class Account
 
         while(1){
 
-            //$this->comprobarSesion();  //METODO AUN SIN FUNCIONAR
+            $this->comprobarSesion();  //METODO AUN SIN FUNCIONAR
 
             print "\n\n___________________________________________________________________\n";
             print "_____________ Comienzo del turno: ".date("Y-m-d H:i:s")." _____________\n";
@@ -87,7 +87,7 @@ class Account
 
             $this->guardarIndices();
 
-            $espera = rand(10,20);
+            $espera = rand(150,400);
             print "\n-Siguiente ejecución en ".$espera." segundos.\n";
             print "_______________ Fin del turno: ".date("Y-m-d H:i:s")." ________________\n";
             print "___________________________________________________________________\n";
@@ -267,13 +267,17 @@ class Account
         $docVistaPpal->loadHTML($vistaPpalHTML);
 
         //Comprobamos que estamos con la sesion 
-        $estado =  explode("L",$docVistaPpal->getElementById('content')->childNodes->item(1)->nodeValue."\n");
-        print $estado[1];
-        if(strncmp ($estado[1] , "ogin", 4)==0){
+        $estado =  explode("Login",$docVistaPpal->getElementById('content')->childNodes->item(1)->nodeValue."\n");
+
+        //print $docVistaPpal->getElementById('content')->childNodes->item(1)->nodeValue."\n";
+        //print $vistaPpalHTML;
+               
+        if(count($estado)==2){
             print "Se ha cerrado sesión, tratamos de volver a abrirla.\n";
             $this->iniciarSesion();
             return 0;
         }
+        
 
     }
 
@@ -333,8 +337,8 @@ class Account
             );
 
         $automatizadorCentro1 = array(
-            "Escondite-1",
-            "Escondite-2"
+            "Escondite5-5",
+            "Escondite4-5"
             );
 
 
@@ -368,12 +372,12 @@ class Account
         "Escondite" =>  'id=21',
         "Almacén" =>  'id=20',
         "Granero" =>  'id=19',
-        "Escondite4" => 'id=23',
+        "Escondite4" => 'id=22',
         "Mercado" => 'id=24',
         "Residencia" => 'id=25',
         "Escondite2" => 'id=28',
         "Escondite3" => 'id=27',
-        "Oficina de Comercio" => 'id=31',
+        "Escondite5" => 'id=31',
         "Cuartel" => 'id=33',
         "Hogar del heroe" => '34',
         "Academia" => 'id=35',
