@@ -337,8 +337,16 @@ class Account
             );
 
         $automatizadorCentro1 = array(
-            "Escondite5-5",
-            "Escondite4-5"
+            "Escondite-5",
+            "Escondite2-5",
+            "Escondite3-7",
+            "Escondite4-7",
+            "Escondite5-7",
+            "Escondite-9",
+            "Escondite2-9",
+            "Escondite3-9",
+            "Escondite4-9",
+            "Escondite5-9"
             );
 
 
