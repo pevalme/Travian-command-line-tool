@@ -28,14 +28,18 @@ class HeroAdventure
             } else {
                 $fields = array();
                 // Add the link needed to go to this adventure
-                $fields['href'] = $adv->getElementsByTagName('a')->item(1)->getAttribute('href');
+                if (count($adv->getElementsByTagName('a')) > 1){
+                    $fields['href'] = $adv->getElementsByTagName('a')->item(1)->getAttribute('href');
 
-                // Getting hidden fields
-                foreach ($adv->getElementsByTagName('input') as $j => $input){
-                    $fields[$input->getAttribute('name')]=$input->getAttribute('value');
+                    // Getting hidden fields
+                    foreach ($adv->getElementsByTagName('input') as $j => $input){
+                        $fields[$input->getAttribute('name')]=$input->getAttribute('value');
+                    }
+
+                    $this->adventureList[trim($adv->getElementsByTagName('td')->item(2)->childNodes->item(0)->nodeValue) . ' <=> ' . $adv->getElementsByTagName('td')->item(4)->childNodes->item(1)->nodeValue] = $fields;
+                }else{
+                    echo "No hay aventuras. Si este mensaje se imprime mas de una vez, algo va mal";
                 }
-
-                $this->adventureList[trim($adv->getElementsByTagName('td')->item(2)->childNodes->item(0)->nodeValue) . ' <=> ' . $adv->getElementsByTagName('td')->item(4)->childNodes->item(1)->nodeValue] = $fields;
             }
         }
         asort($this->adventureList);
