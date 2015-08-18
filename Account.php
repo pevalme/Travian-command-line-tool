@@ -35,7 +35,6 @@ class Account
         $this->inicializarAldeas();
 
         while(1){
-
             $this->comprobarSesion();  //METODO AUN SIN FUNCIONAR
 
             print "\n\n___________________________________________________________________\n";
@@ -405,7 +404,7 @@ class Account
     }
 
     public function showAdventures(){
-        $this->hero = new HeroAdventure();
+        $this->hero = new HeroAdventure($this->ch, $this->url);
         $this->hero->listData();
     }
 
