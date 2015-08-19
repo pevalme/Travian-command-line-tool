@@ -47,14 +47,17 @@ class Center
     }
 
     // Methods
-    public function upgrade($buildingName, $level, $ch) {
+    public function upgrade($buildingName, $level, $ch, $urlBase) {
+        //Esperamos un tiempo de seguridad para humanizar el both:
+        $this->waitMili();
+
         $noAvanzarIndice=0;
 
         //Obtenemos de la lista el id en el que está construido
         $id = $this->idBuilding($buildingName);
 
         //Cargamos el html correspondiente al menu en el que está el botón de construir edficio
-        $urlVistaEdificio = 'http://ts5.travian.net/build.php?id='.$id;
+        $urlVistaEdificio = $urlBase.'build.php?id='.$id;
         curl_setopt($ch,CURLOPT_URL, $urlVistaEdificio);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
         $vistaEdficioHTML = curl_exec($ch);
@@ -125,9 +128,12 @@ class Center
         //_________Comprobación de si se puede subir nivel terminada___________
         
 
+        //Esperamos un tiempo de seguridad para humanizar el both:
+        $this->waitMili();        
+
         //Ahora ya sabemos que existe el botón de subir nivel, accedemos a él y lo pinchamos:
         $aux = explode("'",$docVistaEdificio->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('onclick')."\n");
-        $upgrade = 'http://ts5.travian.net/'.$aux[1];
+        $upgrade = $urlBase.$aux[1];
         curl_setopt($ch,CURLOPT_URL, $upgrade);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
@@ -141,7 +147,10 @@ class Center
         return 0;
     }
 
-    public function build($buildingName, $ch) {
+    public function build($buildingName, $ch, $urlBase) {
+        //Esperamos un tiempo de seguridad para humanizar el both:
+        $this->waitMili();
+
         //Obtenemos de la lista el id en el que está construido
         $id = $this->idBuilding($buildingName);
 
@@ -161,7 +170,7 @@ class Center
 
         
         //Cargamos el html correspondiente al menu en el que está el botón de construir edficio
-        $urlVistaConstruccion = 'http://ts5.travian.net/build.php?id='.$id."&category=".$category;
+        $urlVistaConstruccion = $urlBase.'build.php?id='.$id."&category=".$category;
         curl_setopt($ch,CURLOPT_URL, $urlVistaConstruccion);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
         $vistaConstruccionHTML = curl_exec($ch);
@@ -210,11 +219,12 @@ class Center
         }
         //_________Comprobación de si se puede subir nivel terminada___________
         
-        
+        //Esperamos un tiempo de seguridad para humanizar el both:
+        $this->waitMili();
 
         //Ahora ya sabemos que existe el botón de construir, accedemos a él y lo pinchamos:
         $aux = explode("'",$docVistaConstruccion->getElementById($contract)->childNodes->item(5)->childNodes->item(0)->getAttribute('onclick')."\n");
-        $build = 'http://ts5.travian.net/'.$aux[1];        
+        $build = $urlBase.$aux[1];        
         
         curl_setopt($ch,CURLOPT_URL, $build);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
@@ -227,9 +237,9 @@ class Center
 
     //Estas dos funciones seran necesarias para construir una aldea desde 0.
     
-    public function buildMuralla($ch){
+    public function buildMuralla($ch, $urlBase){
         //Cargamos el html correspondiente al menu en el que está el botón de construir edficio
-        $urlVistaConstruccion = 'http://ts5.travian.net/build.php?id=40';
+        $urlVistaConstruccion = $urlBase.'build.php?id=40';
         curl_setopt($ch,CURLOPT_URL, $urlVistaConstruccion);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
         $vistaConstruccionHTML = curl_exec($ch);
@@ -279,11 +289,12 @@ class Center
         }
         //_________Comprobación de si se puede subir nivel terminada___________
         
-        
+        //Esperamos un tiempo de seguridad para humanizar el both:
+        $this->waitMili();
 
         //Ahora ya sabemos que existe el botón de construir, accedemos a él y lo pinchamos:
         $aux = explode("'",$docVistaConstruccion->getElementById("contract_building31")->childNodes->item(5)->childNodes->item(0)->getAttribute('onclick')."\n");
-        $build = 'http://ts5.travian.net/'.$aux[1];        
+        $build = $urlBase.$aux[1];        
         
         curl_setopt($ch,CURLOPT_URL, $build);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
@@ -294,13 +305,17 @@ class Center
         return 0;
     }
 
-    public function buildPlazaReuniones($ch){
+    public function buildPlazaReuniones($ch, $urlBase){
         print "Función buildPlazaReuniones sin implementar\n";
         return -1;
     }
 
 
-
+    public function waitMili(){
+        $espera = rand(500,1000);
+        //print "Siguiente ejecución en ".$espera." milisegundos.\n";
+        usleep($espera*1000);
+    }
     
 
     private function idBuilding($buildingName){

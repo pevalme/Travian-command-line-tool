@@ -12,14 +12,17 @@ class Fields
     }
 
     // Methods
-    public function upgrade($buildingName, $level, $ch) {
+    public function upgrade($buildingName, $level, $ch, $urlBase) {
+        //Esperamos un tiempo de seguridad para humanizar el both.
+        $this->waitMili();
+
         $noAvanzarIndice=0;
 
         //Obtenemos de la lista el id en el que está construido.
         $id = $this->idBuilding($buildingName);
         
         //Cargamos el html que aparece al pinchar sobre el edificio.
-        $urlVistaRecurso = 'http://ts5.travian.net/build.php?id='.$id;
+        $urlVistaRecurso = $urlBase.'build.php?id='.$id;
         curl_setopt($ch,CURLOPT_URL, $urlVistaRecurso);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
         $vistaRecursoHTML = curl_exec($ch);
@@ -79,11 +82,13 @@ class Fields
         }
 
         //_________Comprobación de si se puede subir nivel terminada___________
-        
+                
+        //Esperamos un tiempo de seguridad para humanizar el both:
+        $this->waitMili();
 
         //Ahora ya sabemos que existe el botón de subir nivel, accedemos a él y lo pinchamos:
         $aux = explode("'",$docVistaRecurso->getElementById('contract')->childNodes->item(2)->childNodes->item(0)->getAttribute('onclick')."\n");
-        $build = 'http://ts5.travian.net/'.$aux[1];
+        $build = $urlBase.$aux[1];
         curl_setopt($ch,CURLOPT_URL, $build);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
@@ -95,6 +100,12 @@ class Fields
         }
         
         return 0;
+    }
+
+    public function waitMili(){
+        $espera = rand(500,1000);
+        //print "Siguiente ejecución en ".$espera." milisegundos.\n";
+        usleep($espera*1000);
     }
 
 

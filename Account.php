@@ -56,6 +56,7 @@ class Account
                         $this->increaseIndiceFieldsAldea($numAldea);
                     }
                 }else{
+                    $this->enterFieldsAldea($numAldea);
                     print "No hay ordenes de construcción definidas en el exterior de la aldea.\n";
                 }
 
@@ -78,10 +79,12 @@ class Account
                         }
                     }
                 }else{
+                    $this->enterCenterAldea($numAldea);
                     print "No hay órdenes de construcción definidas en el centro de la aldea.\n";
                 }
 
                 $numAldea++;
+                $this->clickFields();
             }
 
             $this->guardarIndices();
@@ -140,15 +143,29 @@ class Account
         $this->escribirNota($cadena);
     }
 
+    /* _________________ METODO DE ESPERAR UN TIEMPO MINIMO ____________________*/
+
+    public function waitMili(){
+        $espera = rand(500,1000);
+        //print "Siguiente ejecución en ".$espera." milisegundos.\n";
+        usleep($espera*1000);
+    }
+
 
     /* __________________ METODOS PARA LEER Y ESCRIBIR EN EL BLOC DE NOTAS _____________*/
 
     public function leerNota(){
+        //Esperamos un tiempo de seguridad para humanizar el both.
+        $this->waitMili();
+
         //POR SEGURIDAD: Cargamos el html correspondiente al menu que aparece al pinchar en mensajes.
         $urlNotas = 'http://ts5.travian.net/nachrichten.php';
         curl_setopt($this->ch,CURLOPT_URL, $urlNotas);
         curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
         $notasHTML = curl_exec($this->ch);
+
+        //Esperamos un tiempo de seguridad para humanizar el both.
+        $this->waitMili();
 
         //Cargamos el html correspondiente al menu en el que están las notas
         $urlNotas = 'http://ts5.travian.net/nachrichten.php?t=4';
@@ -165,20 +182,26 @@ class Account
     }
 
     public function escribirNota($nota){
+        //Esperamos un tiempo de seguridad para humanizar el both.
+        $this->waitMili();
+
         //POR SEGURIDAD: Cargamos el html correspondiente al menu que aparece al pinchar en mensajes.
-        $urlNotas = 'http://ts5.travian.net/nachrichten.php';
+        $urlNotas = $this->url.'nachrichten.php';
         curl_setopt($this->ch,CURLOPT_URL, $urlNotas);
         curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
         $notasHTML = curl_exec($this->ch);
 
+        //Esperamos un tiempo de seguridad para humanizar el both.
+        $this->waitMili();
+
         //Cargamos el html correspondiente al menu en el que están las notas
-        $urlNotas = 'http://ts5.travian.net/nachrichten.php?t=4';
+        $urlNotas = $this->url.'nachrichten.php?t=4';
         curl_setopt($this->ch,CURLOPT_URL, $urlNotas);
         curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
         $notasHTML = curl_exec($this->ch);
 
         //Rellenamos el formulario y lo enviamos.
-        $urlNotas = 'http://ts5.travian.net/nachrichten.php';
+        $urlNotas = $this->url.'nachrichten.php';
         $fields = array(
                             't' => urlencode('4'),
                             'speichern' => urlencode('1'),
@@ -191,6 +214,9 @@ class Account
         }
         $fields_string = rtrim($fields_string, '&');
 
+        //Esperamos un tiempo de seguridad para humanizar el both.
+        $this->waitMili();
+
         curl_setopt($this->ch,CURLOPT_URL, $urlNotas);
         curl_setopt($this->ch,CURLOPT_POST, count($fields));
         curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
@@ -199,19 +225,40 @@ class Account
         $notasHTML = curl_exec($this->ch);
     }
 
+    /* _______________ METODOS PARA MOVERSE AL INTERIOR O EXTERIOR DE UNA ALDEA ___________*/
+
+    public function enterFieldsAldea($numAldea){
+        $this->villages[$numAldea]->enterFields($this->ch, $this->url);
+    }
+
+    public function enterCenterAldea($numAldea){
+        $this->villages[$numAldea]->enterCenter($this->ch, $this->url);
+    }
+
+    public function clickFields(){
+        //Esperamos un tiempo de seguridad para humanizar el both.
+        $this->waitMili();
+
+        //Cargamos el html correspondiente a la vista de recursos de la aldea actual.
+        $urlVistaFields = $this->url.'dorf1.php';
+        curl_setopt($this->ch,CURLOPT_URL, $urlVistaFields);
+        curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
+        $vistaFieldsHTML = curl_exec($this->ch);
+    }
+
 
     /*________________ METODOS DE CONSTRUCCIÓN DE EDIFCIOS _______________*/
 
     public function buildCenter($buildingName, $numAldea){
-        return $this->villages[$numAldea]->buildCenter($buildingName, $this->ch);
+        return $this->villages[$numAldea]->buildCenter($buildingName, $this->ch, $this->url);
     }
 
     public function upgradeCenter($buildingName, $level, $numAldea){
-        return $this->villages[$numAldea]->upgradeCenter($buildingName, $level, $this->ch);;
+        return $this->villages[$numAldea]->upgradeCenter($buildingName, $level, $this->ch, $this->url);
     }
 
     public function upgradeFields($buildingName, $level, $numAldea){
-        return $this->villages[$numAldea]->upgradeFields($buildingName, $level, $this->ch); ;
+        return $this->villages[$numAldea]->upgradeFields($buildingName, $level, $this->ch, $this->url);
     }
 
 
@@ -221,7 +268,7 @@ class Account
     public function iniciarSesion(){
 
         //Inicializamos conexión.
-        $url = 'http://ts5.travian.net/dorf1.php';
+        $url = $this->url.'dorf1.php';
 
 
         $fields = array(
@@ -256,7 +303,7 @@ class Account
     public function comprobarSesion(){
 
         //Cargamos el html que aparece al pinchar sobre el edificio.
-        $urlVistaPpal = 'http://ts5.travian.net/dorf1.php';
+        $urlVistaPpal = $this->url.'dorf1.php';
         curl_setopt($this->ch,CURLOPT_URL, $urlVistaPpal);
         curl_setopt($this->ch,CURLOPT_RETURNTRANSFER, true);
         $vistaPpalHTML = curl_exec($this->ch);
@@ -332,30 +379,14 @@ class Account
         // http://www.browsergamesforum.com.ar/guia-para-una-rapida-construccion-de-tus-aldeas-en-travian-t1103.html
         $automatizadorFields1 = array(
             "Granja1-4",
-            "Granja2-4",
-            "Granja3-4",
-            "Granja4-4",
-            "Granja5-4",
-            "Granja6-4",
-            "Granja1-5",
-            "Granja2-5",
-            "Granja3-5",
-            "Granja4-5",
-            "Granja5-5",
-            "Granja6-5"
+            "Granja2-4"
             );
 
         $automatizadorCentro1 = array(
-            "Escondite-5",
-            "Escondite2-5",
-            "Escondite3-7",
-            "Escondite4-7",
-            "Escondite5-7",
-            "Escondite-9",
-            "Escondite2-9",
-            "Escondite3-9",
-            "Escondite4-9",
-            "Escondite5-9"
+            "Escondite2-10",
+            "Escondite3-10",
+            "Escondite4-10",
+            "Escondite5-10"
             );
 
 

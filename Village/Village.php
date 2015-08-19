@@ -16,7 +16,7 @@ class Village
     private $url;
 
     // Constructor
-    function __construct($buildingPositionFields, $buildingPositionCenter, $autFields, $autCenter, $name, $coords, $indices, $url) {
+    function __construct($buildingPositionFields, $buildingPositionCenter, $autFields, $autCenter, $name, $coords, $indices, $urlSuffix) {
         $this->fields = new Fields($buildingPositionFields);
         $this->center = new Center($buildingPositionCenter);
         $this->autFields = $autFields;
@@ -24,20 +24,51 @@ class Village
         $this->name = $name;
         $this->coordenadas = $coords;
         $this->indices = $indices;
-        $this->url = $url;
+        $this->urlSuffix= $urlSuffix;
    	}
 
     // Methods
-    public function buildCenter($buildingName, $ch){
-        return $this->center->build($buildingName, $ch);
+    public function upgradeFields($buildingName, $level, $ch, $url){
+        //Cargamos el html correspondiente a la vista de recursos de la aldea en la que vamos a construir.
+        $this->enterFields($ch, $url);
+
+        return $this->fields->upgrade($buildingName, $level, $ch, $url);
     }
 
-    public function upgradeCenter($buildingName, $level, $ch){
-        return $this->center->upgrade($buildingName, $level, $ch);
+    public function buildCenter($buildingName, $ch, $url){
+        //Cargamos el html correspondiente a la vista central de la aldea en la que vamos a construir.
+        $this->enterCenter($ch, $url);
+
+        return $this->center->build($buildingName, $ch, $url);
     }
 
-    public function upgradeFields($buildingName, $level, $ch){
-        return $this->fields->upgrade($buildingName, $level, $ch);
+    public function upgradeCenter($buildingName, $level, $ch, $url){
+        //Cargamos el html correspondiente a la vista central de la aldea en la que vamos a construir.
+        $this->enterCenter($ch, $url);
+
+        return $this->center->upgrade($buildingName, $level, $ch, $url);
+    }
+
+    public function enterFields($ch, $url){
+        //Esperamos un tiempo de seguridad para humanizar el both.
+        $this->waitMili();
+
+        //Cargamos el html correspondiente a la vista de recursos de la aldea en la que vamos a construir.
+        $urlVistaFields = $url.'dorf1.php'.$this->urlSuffix;
+        curl_setopt($ch,CURLOPT_URL, $urlVistaFields);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        $vistaFieldsHTML = curl_exec($ch);
+    }
+
+    public function enterCenter($ch, $url){
+        //Esperamos un tiempo de seguridad para humanizar el both.
+        $this->waitMili();
+
+        //Cargamos el html correspondiente a la vista central de la aldea en la que vamos a construir.
+        $urlVistaCentro = $url.'dorf2.php'.$this->urlSuffix;
+        curl_setopt($ch,CURLOPT_URL, $urlVistaCentro);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        $vistaCentroHTML = curl_exec($ch);
     }
 
     public function getIndiceFields(){
@@ -192,6 +223,14 @@ class Village
             $result = curl_exec($ch);
         }
              
+    }
+
+    /* _________________ METODO DE ESPERAR UN TIEMPO MINIMO ____________________*/
+
+    public function waitMili(){
+        $espera = rand(500,1000);
+        //print "Siguiente ejecución en ".$espera." milisegundos.\n";
+        usleep($espera*1000);
     }
 }
 ?>

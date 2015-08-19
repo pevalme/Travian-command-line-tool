@@ -54,13 +54,13 @@ class class1
 
 }
 
-$a[0][0]=2;
-$a[0][1]=2;
-$a[1][0]=2;
-$a[1][1]=2;
-$a[2][0]=2;
-$a[2][1]=2;
+$a= 'hola';
+$b=' mundo';
 
-print count($a);
+$c = $a.$b;
+
+print $c;
+
+//print count($a);
 
 ?>
