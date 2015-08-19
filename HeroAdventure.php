@@ -28,14 +28,18 @@ class HeroAdventure
             } else {
                 $fields = array();
                 // Add the link needed to go to this adventure
-                $fields['href'] = $adv->getElementsByTagName('a')->item(1)->getAttribute('href');
+                if (count($adv->getElementsByTagName('a')) > 1){
+                    $fields['href'] = $adv->getElementsByTagName('a')->item(1)->getAttribute('href');
 
-                // Getting hidden fields
-                foreach ($adv->getElementsByTagName('input') as $j => $input){
-                    $fields[$input->getAttribute('name')]=$input->getAttribute('value');
+                    // Getting hidden fields
+                    foreach ($adv->getElementsByTagName('input') as $j => $input){
+                        $fields[$input->getAttribute('name')]=$input->getAttribute('value');
+                    }
+
+                    $this->adventureList[trim($adv->getElementsByTagName('td')->item(2)->childNodes->item(0)->nodeValue) . ' <=> ' . $adv->getElementsByTagName('td')->item(4)->childNodes->item(1)->nodeValue] = $fields;
+                }else{
+                    echo "No hay aventuras. Si este mensaje se imprime mas de una vez, algo va mal";
                 }
-
-                $this->adventureList[trim($adv->getElementsByTagName('td')->item(2)->childNodes->item(0)->nodeValue) . ' <=> ' . $adv->getElementsByTagName('td')->item(4)->childNodes->item(1)->nodeValue] = $fields;
             }
         }
         asort($this->adventureList);
@@ -43,38 +47,46 @@ class HeroAdventure
 
     // Methods
     public function goToAdventure($ch, $url, $adventureNumber) {
-        curl_setopt($ch,CURLOPT_URL, $url . $this->adventureList[array_keys($this->adventureList)[$adventureNumber]]['href']);
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        if (count($this->adventureList) > $adventureNumber){
+            curl_setopt($ch,CURLOPT_URL, $url . $this->adventureList[array_keys($this->adventureList)[$adventureNumber]]['href']);
+            curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
 
-        // Acces to the $adventureNumber adventure
-        $result = curl_exec($ch);
+            // Acces to the $adventureNumber adventure
+            $result = curl_exec($ch);
 
-        //print $result;
-        $doc = new DomDocument();
-        $doc->loadHTML($result);
+            //print $result;
+            $doc = new DomDocument();
+            $doc->loadHTML($result);
 
-        // Get the form that we have to submit to send the hero to the adventure
-        $action = $doc->getElementsByTagName('form')[0]->getAttribute('action');
+            // Get the form that we have to submit to send the hero to the adventure
+            $action = $doc->getElementsByTagName('form')->item(0)->getAttribute('action');
 
-        // Get the inputs of the form
-        $inputs = $doc->getElementsByTagName('input');
-        $fields = array();
+            // Get the inputs of the form
+            $inputs = $doc->getElementsByTagName('input');
+            $fields = array();
 
-        foreach($inputs as $i => $data){
-            $fields[$data->getAttribute('name')]=$data->getAttribute('value');
+            foreach($inputs as $i => $data){
+                $fields[$data->getAttribute('name')]=$data->getAttribute('value');
+            }
+            $fields_string = '';
+            foreach($fields as $key=>$value) {
+                $fields_string .= $key.'='.urlencode($value).'&';
+            }
+            $fields_string = rtrim($fields_string, '&');
+
+            curl_setopt($ch,CURLOPT_URL, $url . $action);
+            curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch,CURLOPT_POST, count($fields));
+            curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+
+            curl_exec($ch);
+        }else{
+            if (count($this->adventureList) == 0){
+                echo "No hay aventuras disponibles";
+            }else{
+                echo "Aventura invalida\n";
+            }
         }
-        $fields_string = '';
-        foreach($fields as $key=>$value) {
-            $fields_string .= $key.'='.urlencode($value).'&';
-        }
-        $fields_string = rtrim($fields_string, '&');
-
-        curl_setopt($ch,CURLOPT_URL, $url . $action);
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch,CURLOPT_POST, count($fields));
-        curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
-
-        curl_exec($ch);
     }
 
     public function listData() {

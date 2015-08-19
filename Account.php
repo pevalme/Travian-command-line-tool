@@ -35,7 +35,6 @@ class Account
         $this->inicializarAldeas();
 
         while(1){
-
             $this->comprobarSesion();  //METODO AUN SIN FUNCIONAR
 
             print "\n\n___________________________________________________________________\n";
@@ -415,7 +414,7 @@ class Account
     }
 
     public function showAdventures(){
-        $this->hero = new HeroAdventure();
+        $this->hero = new HeroAdventure($this->ch, $this->url);
         $this->hero->listData();
     }
 
@@ -426,7 +425,7 @@ class Account
         $this->hero->goToAdventure($this->ch, $this->url, $n);
     }
 
-    public function attack($origin, $targetName, $targetX, $targetY, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $t10, $sendHero, $typeOfAttack){
+    public function single_attack($origin, $targetName, $targetX, $targetY, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $t10, $sendHero, $typeOfAttack){
 
         foreach($this->villages as $index => $village){
             if ($village->getName() == $origin){
@@ -434,7 +433,20 @@ class Account
             }
         }
 
-        $this->villages[$originIndex]->attack($this->ch, $this->url, $targetName, $targetX, $targetY, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $t10, $sendHero, $typeOfAttack);
+        $this->villages[$originIndex]->attack($this->ch, $this->url, $targetName, $targetX, $targetY, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $t10, $sendHero, $typeOfAttack, 1);
+    }
+
+
+    public function train_attack_fake($origin, $targetName, $targetX, $targetY, $numberOfWagons){
+
+        foreach($this->villages as $index => $village){
+            if ($village->getName() == $origin){
+                $originIndex = $index;
+            }
+        }
+
+        $this->villages[$originIndex]->attack($this->ch, $this->url, $targetName, $targetX, $targetY, "1","0","0","0","0","0","0","0","0","0","0","3",$numberOfWagons);       
+
     }
 }
 ?>
