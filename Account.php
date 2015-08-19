@@ -332,8 +332,18 @@ class Account
         //Orden de construccion, basado en:
         // http://www.browsergamesforum.com.ar/guia-para-una-rapida-construccion-de-tus-aldeas-en-travian-t1103.html
         $automatizadorFields1 = array(
-            "Hierro1-2",
-            "Hierro2-2"
+            "Granja1-4",
+            "Granja2-4",
+            "Granja3-4",
+            "Granja4-4",
+            "Granja5-4",
+            "Granja6-4",
+            "Granja1-5",
+            "Granja2-5",
+            "Granja3-5",
+            "Granja4-5",
+            "Granja5-5",
+            "Granja6-5"
             );
 
         $automatizadorCentro1 = array(

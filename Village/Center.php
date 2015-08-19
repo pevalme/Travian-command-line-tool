@@ -98,7 +98,7 @@ class Center
 
         //Comprobamos si son suficientes y en caso de no serlo salimos de la función.
         if(!(($recursos[0]-$recursosCoste[0]>=0)&&($recursos[1]-$recursosCoste[1]>=0)&&($recursos[2]-$recursosCoste[2]>=0)&&($recursos[3]-$recursosCoste[3]>=0)&&($recursos[4]-$recursosCoste[4]>=0))){
-            print "No hay suficientes recursos para subir ".$buildingName." a grado ".$levelUp.".\n";
+            print "No hay suficientes recursos para subir ".$buildingName." a grado ".$level.".\n";
             return -1;
         }
 
