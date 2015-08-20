@@ -110,7 +110,9 @@ class Village
 
         for ($i = 1; $i <= $numberOfWagons; $i++) {
             $result = curl_exec($ch);
-
+            echo "a dormir  ";
+            sleep(1);
+            echo "$i\n";
             $doc = new DomDocument();
             $doc->loadHTML($result);
 
@@ -125,7 +127,7 @@ class Village
                 }else{
                     switch ($data->getAttribute('name')) {
                         case 't1':
-                            $fields[$data->getAttribute('name')] = $t1;
+                            $fields[$data->getAttribute('name')] = $i;
                             break;
                         case 't2':
                             $fields[$data->getAttribute('name')] = $t2;
@@ -217,19 +219,26 @@ class Village
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch,CURLOPT_POST, count($fields));
 
-        $mh = curl_multi_init();
+        //$mh = curl_multi_init();
+        $mh = array();
+
         for ($i = 1; $i <= $numberOfWagons; $i++) {
             $aux = curl_copy_handle($ch);
             echo "Copying handle\n";
             curl_setopt($aux,CURLOPT_URL, $url . $actions[$i]);
             curl_setopt($aux,CURLOPT_POSTFIELDS, $fields_strings_array[$i]);
             curl_setopt($aux, CURLOPT_TIMEOUT, 1/$numberOfWagons);
-            curl_multi_add_handle($mh,$aux);
+            //curl_multi_add_handle($mh,$aux);
+            $mh[$i] = $aux;
         }
         $active = null;
         echo "Let's Attack!!\n";
-        curl_multi_exec($mh, $active); 
-        curl_multi_close($mh);  
+        //curl_multi_exec($mh, $active); 
+        //curl_multi_close($mh);  
+        foreach ($mh as $index => $connection){
+            echo "Sending attack\n";
+            curl_exec($connection);
+        }
     }
 
     /* _________________ METODO DE ESPERAR UN TIEMPO MINIMO ____________________*/
