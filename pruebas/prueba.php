@@ -54,12 +54,28 @@ class class1
 
 }
 
-$a= 'hola';
-$b=' mundo';
+//Generar numeros aleatorios sin repetir del 1 al 100.
+$numeros = 10;
+print "Generar numeros aleatorios sin repetir del 1 al".$numeros."\n";
 
-$c = $a.$b;
 
-print $c;
+for($i=0; $i<$numeros; $i++){
+        $cadenaAux[$i] = $i+1;
+}
+
+for($i=0; $i<$numeros; $i++){
+        $aux = rand(0,$numeros-$i-1);
+        $num[$i] = $cadenaAux[$aux];
+        $cadenaAux[$aux] = $cadenaAux[$numeros-$i-1]; 
+}
+
+
+print "\n";
+for($i=0; $i<$numeros; $i++){
+        print '-'.$num[$i];
+}
+
+
 
 //print count($a);
 
