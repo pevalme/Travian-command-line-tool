@@ -49,10 +49,10 @@
 
 	//print $cuenta->leerNota();
 
-	$cuenta->ia();
-	//$cuenta->iniciarSesion();
-    //$cuenta->inicializarAldeas();	
-    //$cuenta->train_attack_fake('Aldea[0]', '',"0","-94",3);
+	//$cuenta->ia();
+	$cuenta->iniciarSesion();
+    $cuenta->inicializarAldeas();	
+    $cuenta->train_attack_fake('Aldea[0]', '',"0","-94",7);
 
 	//$cuenta->closeConnection();
 	//$cuenta->iniciarSesion();
