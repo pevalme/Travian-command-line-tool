@@ -217,12 +217,19 @@ class Village
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch,CURLOPT_POST, count($fields));
 
+        $mh = curl_multi_init();
         for ($i = 1; $i <= $numberOfWagons; $i++) {
-            curl_setopt($ch,CURLOPT_URL, $url . $actions[$i]);
-            curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_strings_array[$i]);
-            $result = curl_exec($ch);
+            $aux = curl_copy_handle($ch);
+            echo "Copying handle\n";
+            curl_setopt($aux,CURLOPT_URL, $url . $actions[$i]);
+            curl_setopt($aux,CURLOPT_POSTFIELDS, $fields_strings_array[$i]);
+            curl_setopt($aux, CURLOPT_TIMEOUT, 1/$numberOfWagons);
+            curl_multi_add_handle($mh,$aux);
         }
-             
+        $active = null;
+        echo "Let's Attack!!\n";
+        curl_multi_exec($mh, $active); 
+        curl_multi_close($mh);  
     }
 
     /* _________________ METODO DE ESPERAR UN TIEMPO MINIMO ____________________*/
