@@ -464,7 +464,9 @@ class Account
             }
         }
 
-        $this->villages[$originIndex]->attack($this->ch, $this->url, $targetName, $targetX, $targetY, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $t10, $sendHero, $typeOfAttack, 1);
+        $aux = array();
+        $aux[1] = $this->ch;
+        $this->villages[$originIndex]->attack($aux, $this->url, $targetName, $targetX, $targetY, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $t10, $sendHero, $typeOfAttack, 1);
     }
 
 
@@ -476,7 +478,45 @@ class Account
             }
         }
 
-        $this->villages[$originIndex]->attack($this->ch, $this->url, $targetName, $targetX, $targetY, "1","0","0","0","0","0","0","0","0","0","0","3",$numberOfWagons);       
+        $connections = array();
+        $url = $this->url.'dorf1.php';
+
+        for($i = 1; $i <= $numberOfWagons; $i++){
+            $connections[$i] = curl_init();
+            $fields = array(
+                                'name' => urlencode('Digimon'),
+                                'password' => urlencode('noirerve'),
+                                'lowRes' => urlencode('1'),
+                                'w' => urlencode(''),
+                                'login' => urlencode('1437574738')
+                        );
+
+            //url-ify the data for the POST
+            $fields_string = '';
+            foreach($fields as $key=>$value) {
+                $fields_string .= $key.'='.$value.'&';
+            }
+            $fields_string = rtrim($fields_string, '&');
+
+            //set the url, number of POST vars, POST data
+
+            curl_setopt($connections[$i],CURLOPT_URL, $url);
+            curl_setopt($connections[$i],CURLOPT_POST, count($fields));
+            curl_setopt($connections[$i],CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($connections[$i],CURLOPT_POSTFIELDS, $fields_string);
+
+            //curl will take care about the cookies
+            curl_setopt($connections[$i], CURLOPT_COOKIEJAR, '');
+
+            //execute post
+            $result = curl_exec($connections[$i]);
+        }
+
+        $this->villages[$originIndex]->attack($connections, $this->url, $targetName, $targetX, $targetY, "1","0","0","0","0","0","0","0","0","0","0","3",$numberOfWagons);
+
+        for($i = 1; $i <= $numberOfWagons; $i++){
+            curl_close($connections[$i]);
+        }       
 
     }
 }

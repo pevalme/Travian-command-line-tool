@@ -102,17 +102,12 @@ class Village
     public function attack($ch, $url, $targetName, $targetX, $targetY, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $t10, $sendHero, $typeOfAttack, $numberOfWagons){
         $relativeUrl = "build.php?id=39&tt=2"; // Access to "plaza de torneos" an move to "enviar tropas"
 
-        curl_setopt($ch,CURLOPT_URL, $url . $relativeUrl);
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
-
-        $fields_strings_array = array();
-        $actions = array();
+        $mh = curl_multi_init();
 
         for ($i = 1; $i <= $numberOfWagons; $i++) {
-            $result = curl_exec($ch);
-            echo "a dormir  ";
-            sleep(1);
-            echo "$i\n";
+            curl_setopt($ch[$i],CURLOPT_URL, $url . $relativeUrl);
+            curl_setopt($ch[$i],CURLOPT_RETURNTRANSFER, true);
+            $result = curl_exec($ch[$i]);
             $doc = new DomDocument();
             $doc->loadHTML($result);
 
@@ -127,7 +122,7 @@ class Village
                 }else{
                     switch ($data->getAttribute('name')) {
                         case 't1':
-                            $fields[$data->getAttribute('name')] = $i;
+                            $fields[$data->getAttribute('name')] = $t1;
                             break;
                         case 't2':
                             $fields[$data->getAttribute('name')] = $t2;
@@ -190,16 +185,16 @@ class Village
                 $fields_strings .= $key.'='.urlencode($value).'&';
             }
             $fields_strings = rtrim($fields_strings, '&');
-            curl_setopt($ch,CURLOPT_URL, $url . $action);
-            curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch,CURLOPT_POST, count($fields));
-            curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_strings);
-            $result = curl_exec($ch);
+            curl_setopt($ch[$i],CURLOPT_URL, $url . $action);
+            curl_setopt($ch[$i],CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch[$i],CURLOPT_POST, count($fields));
+            curl_setopt($ch[$i],CURLOPT_POSTFIELDS, $fields_strings);
+            $result = curl_exec($ch[$i]);
 
             $doc = new DomDocument();
             $doc->loadHTML($result);
 
-            $actions[$i] = $doc->getElementsByTagName('form')->item(0)->getAttribute('action');
+            $action = $doc->getElementsByTagName('form')->item(0)->getAttribute('action');
 
             $inputs = $doc->getElementsByTagName('input');
 
@@ -208,37 +203,31 @@ class Village
                 $fields[$data->getAttribute('name')] = $data->getAttribute('value');
             }
 
-            $fields_strings_array[$i] = '';
+            $fields_strings = '';
             foreach($fields as $key=>$value) {
-                $fields_strings_array[$i] .= $key.'='.urlencode($value).'&';
+                $fields_strings .= $key.'='.urlencode($value).'&';
             }
 
-            $fields_strings_array[$i] = rtrim($fields_strings_array[$i], '&');
+            $fields_strings = rtrim($fields_strings, '&');
+
+            curl_setopt($ch[$i],CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch[$i],CURLOPT_POST, count($fields));
+
+            curl_setopt($ch[$i],CURLOPT_URL, $url . $action);
+            curl_setopt($ch[$i],CURLOPT_POSTFIELDS, $fields_strings);
+            curl_setopt($ch[$i], CURLOPT_TIMEOUT, 1/$numberOfWagons);
+            //curl_multi_add_handle($mh,$ch[$i]);
+            //curl_exec($ch[$i]);
         }
 
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch,CURLOPT_POST, count($fields));
-
-        //$mh = curl_multi_init();
-        $mh = array();
-
-        for ($i = 1; $i <= $numberOfWagons; $i++) {
-            $aux = curl_copy_handle($ch);
-            echo "Copying handle\n";
-            curl_setopt($aux,CURLOPT_URL, $url . $actions[$i]);
-            curl_setopt($aux,CURLOPT_POSTFIELDS, $fields_strings_array[$i]);
-            curl_setopt($aux, CURLOPT_TIMEOUT, 1/$numberOfWagons);
-            //curl_multi_add_handle($mh,$aux);
-            $mh[$i] = $aux;
-        }
         $active = null;
         echo "Let's Attack!!\n";
+        for($i=1; $i <= $numberOfWagons; $i++){
+            curl_exec($ch[$i]);
+        }
         //curl_multi_exec($mh, $active); 
         //curl_multi_close($mh);  
-        foreach ($mh as $index => $connection){
-            echo "Sending attack\n";
-            curl_exec($connection);
-        }
+        //curl_exec($ch[1]);
     }
 
     /* _________________ METODO DE ESPERAR UN TIEMPO MINIMO ____________________*/

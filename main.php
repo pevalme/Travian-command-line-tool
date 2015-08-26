@@ -52,12 +52,12 @@
 	//$cuenta->ia();
 	$cuenta->iniciarSesion();
     $cuenta->inicializarAldeas();	
-    $cuenta->train_attack_fake('Aldea[0]', '',"0","-94",7);
+    $cuenta->train_attack_fake('Aldea[0]', '',"0","-94",10);
 
 	//$cuenta->closeConnection();
 	//$cuenta->iniciarSesion();
     //$cuenta->inicializarAldeas();
-	//$cuenta->attack('Aldea[0]', '',"0","-94","0","0","0","0","0","0","0","0","0","0","1","2");
+	//$cuenta->single_attack('Aldea[0]', '',"0","-94","0","0","0","0","0","0","0","0","0","0","1","2");
     //$this->sendToAdventure(0);
 
     /*
